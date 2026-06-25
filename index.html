@@ -10,10 +10,17 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <header>
         <h1>Fitness Tracker</h1>
+        <div id="auth-bar">
+            <span id="sync-status" class="sync-status offline">Offline</span>
+            <span id="user-display" style="display:none;"></span>
+            <button id="btn-sign-in" onclick="signIn()">Sign In</button>
+            <button id="btn-sign-out" onclick="signOut()" style="display:none;">Sign Out</button>
+        </div>
     </header>
 
     <main id="app">
@@ -104,6 +111,7 @@
         <button class="tab" data-view="strength">Strength</button>
     </nav>
 
+    <script src="google-sheets.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

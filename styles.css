@@ -199,3 +199,54 @@ header h1 {
     padding: 40px 20px;
     font-size: 0.9rem;
 }
+
+
+/* Auth bar */
+#auth-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+#auth-bar button {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+#auth-bar button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+#user-display {
+    font-size: 0.75rem;
+    opacity: 0.9;
+}
+
+.sync-status {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.sync-status.synced {
+    background: rgba(22, 163, 74, 0.3);
+    color: #bbf7d0;
+}
+
+.sync-status.offline {
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.sync-status.syncing {
+    background: rgba(234, 179, 8, 0.3);
+    color: #fef08a;
+}

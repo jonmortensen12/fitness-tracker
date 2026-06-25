@@ -53,6 +53,7 @@ function initRunForm() {
             timestamp: Date.now()
         };
         Storage.addEntry('runs', entry);
+        syncRunToSheet(entry);
         form.reset();
         dateInput.valueAsDate = new Date();
         renderRunHistory();
@@ -99,6 +100,7 @@ function initWeightForm() {
             timestamp: Date.now()
         };
         Storage.addEntry('weights', entry);
+        syncWeightToSheet(entry);
         form.reset();
         dateInput.valueAsDate = new Date();
         renderWeightHistory();
@@ -140,6 +142,7 @@ function initStrengthForm() {
             timestamp: Date.now()
         };
         Storage.addEntry('strength', entry);
+        syncStrengthToSheet(entry);
         form.reset();
         dateInput.valueAsDate = new Date();
         renderStrengthHistory();
@@ -217,4 +220,16 @@ document.addEventListener('DOMContentLoaded', () => {
     renderWeightHistory();
     renderStrengthHistory();
     updateDashboard();
+
+    // Initialize Google Auth once the library loads
+    if (typeof google !== 'undefined') {
+        initGoogleAuth();
+    } else {
+        // Library loads async, wait for it
+        window.addEventListener('load', () => {
+            if (typeof google !== 'undefined') {
+                initGoogleAuth();
+            }
+        });
+    }
 });
