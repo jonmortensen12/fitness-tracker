@@ -2,7 +2,7 @@
     "name": "Fitness Tracker",
     "short_name": "Fitness",
     "description": "Track runs, weight, and strength training progress",
-    "start_url": "/",
+    "start_url": "/fitness-tracker/",
     "display": "standalone",
     "background_color": "#f8fafc",
     "theme_color": "#2563eb",
