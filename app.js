@@ -68,7 +68,11 @@ function initRunForm() {
 
 function renderRunHistory() {
     const container = document.getElementById('run-history');
-    const runs = Storage.get('runs');
+    const localRuns = Storage.get('runs');
+    const sharedRuns = Storage.get('runs_shared');
+
+    // Merge: use shared data if available, otherwise local
+    const runs = sharedRuns.length > 0 ? sharedRuns.sort((a, b) => b.timestamp - a.timestamp) : localRuns;
 
     if (runs.length === 0) {
         container.innerHTML = '<p class="empty-state">No runs logged yet. Get out there!</p>';
@@ -79,10 +83,11 @@ function renderRunHistory() {
         const pace = run.duration / run.distance;
         const paceMin = Math.floor(pace);
         const paceSec = Math.round((pace - paceMin) * 60).toString().padStart(2, '0');
+        const userLabel = run.user ? `<span class="user-tag">${run.user.split('@')[0]}</span>` : '';
         return `
             <div class="history-item">
                 <div>
-                    <div class="value">${run.distance} mi</div>
+                    <div class="value">${run.distance} mi ${userLabel}</div>
                     <div class="detail">${run.duration} min (${paceMin}:${paceSec}/mi)</div>
                 </div>
                 <div class="date">${formatDate(run.date)}</div>
@@ -115,19 +120,25 @@ function initWeightForm() {
 
 function renderWeightHistory() {
     const container = document.getElementById('weight-history');
-    const weights = Storage.get('weights');
+    const localWeights = Storage.get('weights');
+    const sharedWeights = Storage.get('weights_shared');
+
+    const weights = sharedWeights.length > 0 ? sharedWeights.sort((a, b) => b.timestamp - a.timestamp) : localWeights;
 
     if (weights.length === 0) {
         container.innerHTML = '<p class="empty-state">No weigh-ins yet. Start tracking!</p>';
         return;
     }
 
-    container.innerHTML = weights.slice(0, 20).map(w => `
-        <div class="history-item">
-            <div class="value">${w.weight} lbs</div>
-            <div class="date">${formatDate(w.date)}</div>
-        </div>
-    `).join('');
+    container.innerHTML = weights.slice(0, 20).map(w => {
+        const userLabel = w.user ? `<span class="user-tag">${w.user.split('@')[0]}</span>` : '';
+        return `
+            <div class="history-item">
+                <div class="value">${w.weight} lbs ${userLabel}</div>
+                <div class="date">${formatDate(w.date)}</div>
+            </div>
+        `;
+    }).join('');
 }
 
 // --- Strength ---
@@ -157,22 +168,28 @@ function initStrengthForm() {
 
 function renderStrengthHistory() {
     const container = document.getElementById('strength-history');
-    const entries = Storage.get('strength');
+    const localEntries = Storage.get('strength');
+    const sharedEntries = Storage.get('strength_shared');
+
+    const entries = sharedEntries.length > 0 ? sharedEntries.sort((a, b) => b.timestamp - a.timestamp) : localEntries;
 
     if (entries.length === 0) {
         container.innerHTML = '<p class="empty-state">No workouts logged yet. Time to lift!</p>';
         return;
     }
 
-    container.innerHTML = entries.slice(0, 20).map(s => `
-        <div class="history-item">
-            <div>
-                <div class="value">${s.exercise}</div>
-                <div class="detail">${s.sets}x${s.reps} @ ${s.weight} lbs</div>
+    container.innerHTML = entries.slice(0, 20).map(s => {
+        const userLabel = s.user ? `<span class="user-tag">${s.user.split('@')[0]}</span>` : '';
+        return `
+            <div class="history-item">
+                <div>
+                    <div class="value">${s.exercise} ${userLabel}</div>
+                    <div class="detail">${s.sets}x${s.reps} @ ${s.weight} lbs</div>
+                </div>
+                <div class="date">${formatDate(s.date)}</div>
             </div>
-            <div class="date">${formatDate(s.date)}</div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // --- Dashboard ---

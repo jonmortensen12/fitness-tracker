@@ -20,25 +20,31 @@ function initGoogleAuth() {
     });
 }
 
-function handleTokenResponse(response) {
+async function handleTokenResponse(response) {
     if (response.error) {
         console.error('Auth error:', response.error);
         return;
     }
     accessToken = response.access_token;
 
-    // Get user info
-    fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { 'Authorization': `Bearer ${accessToken}` }
-    })
-    .then(res => res.json())
-    .then(info => {
+    // Get user info - await this so currentUser is set before anything else
+    try {
+        const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+        const info = await res.json();
         currentUser = info.email;
         localStorage.setItem('fitness_user', currentUser);
         updateAuthUI(true);
-        return syncFromSheet();
-    })
-    .catch(err => console.error('Failed to get user info:', err));
+        await syncFromSheet();
+    } catch (err) {
+        console.error('Failed to get user info:', err);
+        // Fall back to stored user
+        currentUser = localStorage.getItem('fitness_user');
+        if (currentUser) {
+            updateAuthUI(true);
+        }
+    }
 }
 
 function signIn() {
