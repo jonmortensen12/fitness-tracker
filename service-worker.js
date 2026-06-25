@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fitness-tracker-v5';
+const CACHE_NAME = 'fitness-tracker-v6';
 const ASSETS_TO_CACHE = [
     '/fitness-tracker/',
     '/fitness-tracker/index.html',
@@ -18,7 +18,7 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
-// Activate: clean up old caches
+// Activate: clean up old caches and take control immediately
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) => {
@@ -31,12 +31,17 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Fetch: serve from cache, fall back to network
+// Fetch: network-first strategy (try network, fall back to cache)
 self.addEventListener('fetch', (event) => {
+    // Skip non-GET requests and Google API calls
+    if (event.request.method !== 'GET' || event.request.url.includes('googleapis.com') || event.request.url.includes('accounts.google.com')) {
+        return;
+    }
+
     event.respondWith(
-        caches.match(event.request).then((cached) => {
-            // Return cached version, but also fetch fresh copy for next time
-            const fetchPromise = fetch(event.request).then((response) => {
+        fetch(event.request)
+            .then((response) => {
+                // Got a good response, cache it for offline use
                 if (response && response.status === 200) {
                     const clone = response.clone();
                     caches.open(CACHE_NAME).then((cache) => {
@@ -44,9 +49,10 @@ self.addEventListener('fetch', (event) => {
                     });
                 }
                 return response;
-            }).catch(() => cached);
-
-            return cached || fetchPromise;
-        })
+            })
+            .catch(() => {
+                // Network failed, try cache (offline mode)
+                return caches.match(event.request);
+            })
     );
 });
