@@ -33,6 +33,11 @@ function initNavigation() {
 
             tab.classList.add('active');
             document.getElementById(`view-${viewId}`).classList.add('active');
+
+            // Auto-refresh from sheet when switching to dashboard
+            if (viewId === 'dashboard' && accessToken) {
+                syncFromSheet();
+            }
         });
     });
 }

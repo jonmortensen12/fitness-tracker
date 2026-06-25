@@ -26,7 +26,10 @@
     <main id="app">
         <!-- Dashboard View -->
         <section id="view-dashboard" class="view active">
-            <h2>Dashboard</h2>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Dashboard</h2>
+                <button id="btn-refresh" onclick="syncFromSheet()" style="background:none; border:1px solid var(--border); border-radius:8px; padding:6px 12px; font-size:0.8rem; cursor:pointer;">Refresh</button>
+            </div>
             <div class="cards">
                 <div class="card">
                     <h3>Running</h3>

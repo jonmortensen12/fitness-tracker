@@ -4,7 +4,7 @@
 
 const GOOGLE_CLIENT_ID = '684988331804-lj0n1cdvf2nns154vfrv4oacies9q4sg.apps.googleusercontent.com';
 const SPREADSHEET_ID = '1pbxXdSpjyVr61wGO9972nA0goBPFLoK-Q4XfTrNG-to';
-const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+const SCOPES = 'https://www.googleapis.com/auth/spreadsheets openid email';
 
 let tokenClient;
 let accessToken = null;
@@ -36,7 +36,7 @@ function handleTokenResponse(response) {
         currentUser = info.email;
         localStorage.setItem('fitness_user', currentUser);
         updateAuthUI(true);
-        syncFromSheet();
+        return syncFromSheet();
     })
     .catch(err => console.error('Failed to get user info:', err));
 }
@@ -137,8 +137,9 @@ async function readSheet(sheetName) {
 // --- Sync Helpers ---
 
 async function syncRunToSheet(entry) {
+    const user = currentUser || localStorage.getItem('fitness_user') || 'anonymous';
     return appendToSheet('Runs', [
-        currentUser || 'anonymous',
+        user,
         entry.date,
         entry.distance,
         entry.duration,
@@ -148,8 +149,9 @@ async function syncRunToSheet(entry) {
 }
 
 async function syncWeightToSheet(entry) {
+    const user = currentUser || localStorage.getItem('fitness_user') || 'anonymous';
     return appendToSheet('Weight', [
-        currentUser || 'anonymous',
+        user,
         entry.date,
         entry.weight,
         entry.timestamp
@@ -157,8 +159,9 @@ async function syncWeightToSheet(entry) {
 }
 
 async function syncStrengthToSheet(entry) {
+    const user = currentUser || localStorage.getItem('fitness_user') || 'anonymous';
     return appendToSheet('Strength', [
-        currentUser || 'anonymous',
+        user,
         entry.date,
         entry.exercise,
         entry.sets,
