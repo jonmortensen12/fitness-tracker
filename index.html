@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+    <header>
+        <h1>Fitness Tracker</h1>
+    </header>
+
+    <main id="app">
+        <!-- Dashboard View -->
+        <section id="view-dashboard" class="view active">
+            <h2>Dashboard</h2>
+            <div class="cards">
+                <div class="card">
+                    <h3>Running</h3>
+                    <p class="stat" id="stat-running">0 mi this week</p>
+                </div>
+                <div class="card">
+                    <h3>Weight</h3>
+                    <p class="stat" id="stat-weight">No entries yet</p>
+                </div>
+                <div class="card">
+                    <h3>Strength</h3>
+                    <p class="stat" id="stat-strength">0 workouts this week</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Runs View -->
+        <section id="view-runs" class="view">
+            <h2>Running Log</h2>
+            <form id="form-run" class="entry-form">
+                <label for="run-date">Date</label>
+                <input type="date" id="run-date" required>
+
+                <label for="run-distance">Distance (miles)</label>
+                <input type="number" id="run-distance" step="0.1" min="0" required>
+
+                <label for="run-duration">Duration (minutes)</label>
+                <input type="number" id="run-duration" step="1" min="0" required>
+
+                <label for="run-notes">Notes</label>
+                <input type="text" id="run-notes" placeholder="How did it feel?">
+
+                <button type="submit">Log Run</button>
+            </form>
+            <div id="run-history" class="history-list"></div>
+        </section>
+
+        <!-- Weight View -->
+        <section id="view-weight" class="view">
+            <h2>Weight Log</h2>
+            <form id="form-weight" class="entry-form">
+                <label for="weight-date">Date</label>
+                <input type="date" id="weight-date" required>
+
+                <label for="weight-value">Weight (lbs)</label>
+                <input type="number" id="weight-value" step="0.1" min="0" required>
+
+                <button type="submit">Log Weight</button>
+            </form>
+            <div id="weight-history" class="history-list"></div>
+        </section>
+
+        <!-- Strength View -->
+        <section id="view-strength" class="view">
+            <h2>Strength Log</h2>
+            <form id="form-strength" class="entry-form">
+                <label for="strength-date">Date</label>
+                <input type="date" id="strength-date" required>
+
+                <label for="strength-exercise">Exercise</label>
+                <input type="text" id="strength-exercise" placeholder="e.g. Bench Press" required>
+
+                <label for="strength-sets">Sets</label>
+                <input type="number" id="strength-sets" min="1" required>
+
+                <label for="strength-reps">Reps</label>
+                <input type="number" id="strength-reps" min="1" required>
+
+                <label for="strength-weight">Weight (lbs)</label>
+                <input type="number" id="strength-weight" step="2.5" min="0">
+
+                <button type="submit">Log Exercise</button>
+            </form>
+            <div id="strength-history" class="history-list"></div>
+        </section>
+    </main>
+
+    <nav id="tab-bar">
+        <button class="tab active" data-view="dashboard">Dashboard</button>
+        <button class="tab" data-view="runs">Runs</button>
+        <button class="tab" data-view="weight">Weight</button>
+        <button class="tab" data-view="strength">Strength</button>
+    </nav>
+
+    <script src="app.js"></script>
+</body>
+</html>
