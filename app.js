@@ -1,5 +1,5 @@
 // ========================================
-// Fitness Tracker PWA - Main Application
+// Race Ready - Main Application
 // ========================================
 
 // --- Data Storage ---
@@ -8,14 +8,21 @@ const Storage = {
         const data = localStorage.getItem(key);
         return data ? JSON.parse(data) : [];
     },
+    getObj(key) {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : {};
+    },
     set(key, value) {
         localStorage.setItem(key, JSON.stringify(value));
     },
     addEntry(key, entry) {
         const entries = this.get(key);
-        entries.unshift(entry); // newest first
+        entries.unshift(entry);
         this.set(key, entries);
         return entries;
+    },
+    today() {
+        return new Date().toISOString().split('T')[0];
     }
 };
 
@@ -27,33 +34,217 @@ function initNavigation() {
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
             const viewId = tab.dataset.view;
-
-            tabs.forEach(t => t.classList.remove('active'));
-            views.forEach(v => v.classList.remove('active'));
-
-            tab.classList.add('active');
-            document.getElementById(`view-${viewId}`).classList.add('active');
-
-            // Auto-refresh from sheet when switching to dashboard
-            if (viewId === 'dashboard' && accessToken) {
-                syncFromSheet();
-            }
+            switchView(viewId);
         });
     });
 }
 
-// --- Running ---
+function switchView(viewId) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+
+    const tab = document.querySelector(`.tab[data-view="${viewId}"]`);
+    if (tab) tab.classList.add('active');
+    document.getElementById(`view-${viewId}`).classList.add('active');
+
+    // Trigger view-specific renders
+    if (viewId === 'today') renderToday();
+    if (viewId === 'week') renderWeek();
+    if (viewId === 'progress') renderProgress();
+}
+
+// --- Today View ---
+function renderToday() {
+    // Race countdown
+    const daysLeft = getDaysUntilRace();
+    document.getElementById('race-countdown').textContent =
+        daysLeft > 0 ? `${daysLeft} days to go` : 'Race Day!';
+
+    // Today's plan
+    const plan = getTodayPlan();
+    const todayCard = document.getElementById('today-workout');
+    const todayTitle = document.getElementById('today-title');
+    const todayDate = document.getElementById('today-date');
+    const todayActions = document.getElementById('today-actions');
+
+    const now = new Date();
+    todayDate.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+    if (!plan) {
+        todayCard.innerHTML = '<p class="today-workout-type">No plan for today</p><p class="today-workout-desc">You\'re outside the training window. Enjoy your day!</p>';
+        todayActions.style.display = 'none';
+    } else {
+        const weekLabel = getPhaseLabel(plan.week);
+        todayCard.innerHTML = `
+            <div class="today-workout-type">${plan.title}</div>
+            <div class="today-workout-desc">${plan.desc}</div>
+            <div class="today-workout-desc" style="margin-top:6px; font-size:0.75rem; opacity:0.7;">Week ${plan.week} - ${weekLabel}</div>
+        `;
+
+        // Show/hide actions based on workout type
+        const startBtn = document.getElementById('btn-start-workout');
+        const markBtn = document.getElementById('btn-mark-done');
+        todayActions.style.display = 'flex';
+
+        if (plan.type === 'strength') {
+            startBtn.style.display = 'block';
+            startBtn.textContent = 'Start Workout';
+        } else if (plan.type === 'run') {
+            startBtn.style.display = 'block';
+            startBtn.textContent = 'View Warm-up';
+        } else {
+            startBtn.style.display = 'none';
+        }
+
+        // Check if already marked complete
+        const completed = getCompletedDates();
+        if (completed.includes(Storage.today())) {
+            markBtn.textContent = '✓ Done';
+            markBtn.style.background = '#16a34a';
+        } else {
+            markBtn.textContent = 'Mark Complete';
+            markBtn.style.background = '';
+        }
+    }
+
+    // Quick stats
+    updateQuickStats();
+
+    // Readiness bar
+    updateReadinessBar();
+}
+
+function updateQuickStats() {
+    // Streak
+    const streak = calculateStreak();
+    document.getElementById('stat-streak').textContent = streak;
+
+    // Miles this week
+    const weekMiles = getWeekMiles();
+    document.getElementById('stat-week-miles').textContent = weekMiles.toFixed(1);
+
+    // Current weight
+    const weights = Storage.get('weights');
+    if (weights.length > 0) {
+        document.getElementById('stat-weight').textContent = weights[0].weight;
+    }
+}
+
+function updateReadinessBar() {
+    const readiness = calculateReadiness();
+    document.getElementById('readiness-fill').style.width = `${readiness.total}%`;
+    document.getElementById('readiness-label').textContent = `${Math.round(readiness.total)}% Race Ready`;
+}
+
+// --- Week View ---
+function renderWeek() {
+    const container = document.getElementById('week-grid');
+    const today = Storage.today();
+    const monday = getMonday(today);
+    const completed = getCompletedDates();
+
+    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    let html = '';
+
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(d.getDate() + i);
+        const dateStr = d.toISOString().split('T')[0];
+        const dayKey = getDayOfWeek(dateStr);
+        const weekNum = getWeekNumber(dateStr);
+
+        let workout = '—';
+        let type = 'rest';
+        if (weekNum >= 1 && weekNum <= 21) {
+            const weekPlan = getWeekPlan(weekNum);
+            if (weekPlan[dayKey]) {
+                workout = weekPlan[dayKey].title;
+                type = weekPlan[dayKey].type;
+            }
+        }
+
+        const isToday = dateStr === today;
+        const isDone = completed.includes(dateStr);
+        const isPast = dateStr < today && !isDone;
+        let classes = 'week-day';
+        if (isToday) classes += ' today';
+        if (isDone) classes += ' completed';
+        if (isPast && type !== 'rest') classes += ' missed';
+
+        html += `
+            <div class="${classes}" data-date="${dateStr}">
+                <div class="week-day-name">${dayNames[i]}</div>
+                <div class="week-day-workout">${workout}</div>
+                <div class="week-day-check"></div>
+            </div>
+        `;
+    }
+
+    container.innerHTML = html;
+}
+
+// --- Log View ---
+function initLogTabs() {
+    document.querySelectorAll('.log-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const panel = tab.dataset.logtab;
+            document.querySelectorAll('.log-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.log-panel').forEach(p => p.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(`logpanel-${panel}`).classList.add('active');
+        });
+    });
+}
+
 function initRunForm() {
     const form = document.getElementById('form-run');
     const dateInput = document.getElementById('run-date');
     dateInput.valueAsDate = new Date();
 
+    // Live calorie/pace calculation
+    const distInput = document.getElementById('run-distance');
+    const durInput = document.getElementById('run-duration');
+    const incInput = document.getElementById('run-incline');
+
+    function updateCalcs() {
+        const dist = parseFloat(distInput.value) || 0;
+        const dur = parseInt(durInput.value) || 0;
+        const incline = parseFloat(incInput.value) || 0;
+        const weights = Storage.get('weights');
+        const weight = weights.length > 0 ? weights[0].weight : 225;
+
+        if (dist > 0 && dur > 0) {
+            const pace = dur / dist;
+            const paceMin = Math.floor(pace);
+            const paceSec = Math.round((pace - paceMin) * 60).toString().padStart(2, '0');
+            document.getElementById('run-pace').textContent = `Pace: ${paceMin}:${paceSec}/mi`;
+
+            const cals = calculateRunCalories(dist, dur, incline, weight);
+            document.getElementById('run-calories').textContent = `Calories: ~${cals}`;
+        } else {
+            document.getElementById('run-pace').textContent = 'Pace: --';
+            document.getElementById('run-calories').textContent = 'Calories: --';
+        }
+    }
+
+    distInput.addEventListener('input', updateCalcs);
+    durInput.addEventListener('input', updateCalcs);
+    incInput.addEventListener('input', updateCalcs);
+
     form.addEventListener('submit', (e) => {
         e.preventDefault();
+        const dist = parseFloat(distInput.value);
+        const dur = parseInt(durInput.value);
+        const incline = parseFloat(incInput.value) || 0;
+        const weights = Storage.get('weights');
+        const weight = weights.length > 0 ? weights[0].weight : 225;
+
         const entry = {
             date: document.getElementById('run-date').value,
-            distance: parseFloat(document.getElementById('run-distance').value),
-            duration: parseInt(document.getElementById('run-duration').value),
+            distance: dist,
+            duration: dur,
+            incline: incline,
+            calories: calculateRunCalories(dist, dur, incline, weight),
             notes: document.getElementById('run-notes').value,
             timestamp: Date.now()
         };
@@ -62,33 +253,29 @@ function initRunForm() {
         form.reset();
         dateInput.valueAsDate = new Date();
         renderRunHistory();
-        updateDashboard();
+        updateQuickStats();
     });
 }
 
 function renderRunHistory() {
     const container = document.getElementById('run-history');
-    const localRuns = Storage.get('runs');
-    const sharedRuns = Storage.get('runs_shared');
-
-    // Merge: use shared data if available, otherwise local
-    const runs = sharedRuns.length > 0 ? sharedRuns.sort((a, b) => b.timestamp - a.timestamp) : localRuns;
+    const runs = Storage.get('runs');
 
     if (runs.length === 0) {
-        container.innerHTML = '<p class="empty-state">No runs logged yet. Get out there!</p>';
+        container.innerHTML = '<p class="empty-state">No runs logged yet.</p>';
         return;
     }
 
-    container.innerHTML = runs.slice(0, 20).map(run => {
+    container.innerHTML = runs.slice(0, 15).map(run => {
         const pace = run.duration / run.distance;
         const paceMin = Math.floor(pace);
         const paceSec = Math.round((pace - paceMin) * 60).toString().padStart(2, '0');
-        const userLabel = run.user ? `<span class="user-tag">${run.user.split('@')[0]}</span>` : '';
+        const inclineStr = run.incline > 0 ? ` @ ${run.incline}%` : '';
         return `
             <div class="history-item">
                 <div>
-                    <div class="value">${run.distance} mi ${userLabel}</div>
-                    <div class="detail">${run.duration} min (${paceMin}:${paceSec}/mi)</div>
+                    <div class="value">${run.distance} mi in ${run.duration} min${inclineStr}</div>
+                    <div class="detail">${paceMin}:${paceSec}/mi · ${run.calories || '--'} cal</div>
                 </div>
                 <div class="date">${formatDate(run.date)}</div>
             </div>
@@ -96,7 +283,6 @@ function renderRunHistory() {
     }).join('');
 }
 
-// --- Weight ---
 function initWeightForm() {
     const form = document.getElementById('form-weight');
     const dateInput = document.getElementById('weight-date');
@@ -114,113 +300,181 @@ function initWeightForm() {
         form.reset();
         dateInput.valueAsDate = new Date();
         renderWeightHistory();
-        updateDashboard();
+        updateQuickStats();
     });
 }
 
 function renderWeightHistory() {
     const container = document.getElementById('weight-history');
-    const localWeights = Storage.get('weights');
-    const sharedWeights = Storage.get('weights_shared');
-
-    const weights = sharedWeights.length > 0 ? sharedWeights.sort((a, b) => b.timestamp - a.timestamp) : localWeights;
+    const weights = Storage.get('weights');
 
     if (weights.length === 0) {
-        container.innerHTML = '<p class="empty-state">No weigh-ins yet. Start tracking!</p>';
+        container.innerHTML = '<p class="empty-state">No weigh-ins yet.</p>';
         return;
     }
 
-    container.innerHTML = weights.slice(0, 20).map(w => {
-        const userLabel = w.user ? `<span class="user-tag">${w.user.split('@')[0]}</span>` : '';
-        return `
-            <div class="history-item">
-                <div class="value">${w.weight} lbs ${userLabel}</div>
-                <div class="date">${formatDate(w.date)}</div>
-            </div>
-        `;
-    }).join('');
+    container.innerHTML = weights.slice(0, 15).map(w => `
+        <div class="history-item">
+            <div class="value">${w.weight} lbs</div>
+            <div class="date">${formatDate(w.date)}</div>
+        </div>
+    `).join('');
 }
 
-// --- Strength ---
-function initStrengthForm() {
-    const form = document.getElementById('form-strength');
-    const dateInput = document.getElementById('strength-date');
-    dateInput.valueAsDate = new Date();
+function initNutrition() {
+    const scale = document.getElementById('nutrition-scale');
+    scale.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('nutrition-btn')) return;
+        const rating = parseInt(e.target.dataset.rating);
 
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
+        // Save rating
         const entry = {
-            date: document.getElementById('strength-date').value,
-            exercise: document.getElementById('strength-exercise').value,
-            sets: parseInt(document.getElementById('strength-sets').value),
-            reps: parseInt(document.getElementById('strength-reps').value),
-            weight: parseFloat(document.getElementById('strength-weight').value) || 0,
+            date: Storage.today(),
+            rating: rating,
             timestamp: Date.now()
         };
-        Storage.addEntry('strength', entry);
-        syncStrengthToSheet(entry);
-        form.reset();
-        dateInput.valueAsDate = new Date();
-        renderStrengthHistory();
-        updateDashboard();
+
+        // Replace today's rating if exists
+        let ratings = Storage.get('nutrition');
+        ratings = ratings.filter(r => r.date !== Storage.today());
+        ratings.unshift(entry);
+        Storage.set('nutrition', ratings);
+        syncNutritionToSheet(entry);
+
+        // Update UI
+        document.querySelectorAll('.nutrition-btn').forEach(btn => btn.classList.remove('selected'));
+        e.target.classList.add('selected');
+        document.getElementById('nutrition-today-status').textContent = `Today: ${rating}/10 ✓`;
+
+        renderNutritionHistory();
     });
+
+    // Show today's rating if exists
+    const ratings = Storage.get('nutrition');
+    const todayRating = ratings.find(r => r.date === Storage.today());
+    if (todayRating) {
+        document.querySelector(`.nutrition-btn[data-rating="${todayRating.rating}"]`).classList.add('selected');
+        document.getElementById('nutrition-today-status').textContent = `Today: ${todayRating.rating}/10 ✓`;
+    }
+
+    renderNutritionHistory();
 }
 
-function renderStrengthHistory() {
-    const container = document.getElementById('strength-history');
-    const localEntries = Storage.get('strength');
-    const sharedEntries = Storage.get('strength_shared');
+function renderNutritionHistory() {
+    const container = document.getElementById('nutrition-history');
+    const ratings = Storage.get('nutrition');
 
-    const entries = sharedEntries.length > 0 ? sharedEntries.sort((a, b) => b.timestamp - a.timestamp) : localEntries;
-
-    if (entries.length === 0) {
-        container.innerHTML = '<p class="empty-state">No workouts logged yet. Time to lift!</p>';
+    // Show last 7 days
+    const recent = ratings.slice(0, 7);
+    if (recent.length === 0) {
+        container.innerHTML = '<p class="empty-state">No ratings yet this week.</p>';
         return;
     }
 
-    container.innerHTML = entries.slice(0, 20).map(s => {
-        const userLabel = s.user ? `<span class="user-tag">${s.user.split('@')[0]}</span>` : '';
-        return `
-            <div class="history-item">
-                <div>
-                    <div class="value">${s.exercise} ${userLabel}</div>
-                    <div class="detail">${s.sets}x${s.reps} @ ${s.weight} lbs</div>
-                </div>
-                <div class="date">${formatDate(s.date)}</div>
-            </div>
-        `;
-    }).join('');
+    container.innerHTML = recent.map(r => `
+        <div class="history-item">
+            <div class="value">${r.rating}/10</div>
+            <div class="date">${formatDate(r.date)}</div>
+        </div>
+    `).join('');
 }
 
-// --- Dashboard ---
-function updateDashboard() {
-    const now = new Date();
-    const weekAgo = new Date(now);
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    const weekStr = weekAgo.toISOString().split('T')[0];
+// --- Completion Tracking ---
+function getCompletedDates() {
+    return Storage.get('completed_dates');
+}
 
-    // Running stat: miles this week
-    const runs = Storage.get('runs');
-    const weekRuns = runs.filter(r => r.date >= weekStr);
-    const totalMiles = weekRuns.reduce((sum, r) => sum + r.distance, 0);
-    document.getElementById('stat-running').textContent = `${totalMiles.toFixed(1)} mi this week`;
+function markTodayComplete() {
+    const today = Storage.today();
+    let completed = getCompletedDates();
+    if (!completed.includes(today)) {
+        completed.push(today);
+        Storage.set('completed_dates', completed);
+        syncCompletionToSheet(today);
+    }
+    renderToday();
+}
 
-    // Weight stat: latest weight
-    const weights = Storage.get('weights');
-    if (weights.length > 0) {
-        document.getElementById('stat-weight').textContent = `${weights[0].weight} lbs`;
+// --- Streak Calculation ---
+function calculateStreak() {
+    const completed = getCompletedDates().sort();
+    if (completed.length === 0) return 0;
+
+    const today = Storage.today();
+    let streak = 0;
+    let checkDate = new Date(today);
+
+    // If today isn't done yet, start from yesterday
+    if (!completed.includes(today)) {
+        checkDate.setDate(checkDate.getDate() - 1);
     }
 
-    // Strength stat: workouts this week
-    const strength = Storage.get('strength');
-    const weekDates = new Set(strength.filter(s => s.date >= weekStr).map(s => s.date));
-    document.getElementById('stat-strength').textContent = `${weekDates.size} workouts this week`;
+    while (true) {
+        const dateStr = checkDate.toISOString().split('T')[0];
+        const dayOfWeek = checkDate.getDay(); // 0=Sun
+
+        // Skip rest days (Sunday) in streak calculation
+        if (dayOfWeek === 0) {
+            checkDate.setDate(checkDate.getDate() - 1);
+            continue;
+        }
+
+        // Check if this day's plan was a rest day (Wed in summer can count)
+        const weekNum = getWeekNumber(dateStr);
+        if (weekNum >= 1 && weekNum <= 21) {
+            const dayKey = getDayOfWeek(dateStr);
+            const weekPlan = getWeekPlan(weekNum);
+            if (weekPlan[dayKey] && weekPlan[dayKey].type === 'rest') {
+                checkDate.setDate(checkDate.getDate() - 1);
+                continue;
+            }
+        }
+
+        if (completed.includes(dateStr)) {
+            streak++;
+            checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+            break;
+        }
+    }
+
+    return streak;
+}
+
+// --- Week Miles ---
+function getWeekMiles() {
+    const monday = getMonday(Storage.today());
+    const runs = Storage.get('runs');
+    return runs
+        .filter(r => r.date >= monday)
+        .reduce((sum, r) => sum + r.distance, 0);
 }
 
 // --- Utilities ---
 function formatDate(dateStr) {
     const [year, month, day] = dateStr.split('-');
     return `${parseInt(month)}/${parseInt(day)}`;
+}
+
+function formatDateFull(dateStr) {
+    const d = new Date(dateStr + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+// --- Button Handlers ---
+function initButtons() {
+    document.getElementById('btn-start-workout').addEventListener('click', () => {
+        const plan = getTodayPlan();
+        if (!plan) return;
+
+        if (plan.type === 'strength') {
+            startWorkoutWalker(plan.exercises, plan.warmup);
+        } else if (plan.type === 'run' && plan.warmup) {
+            startWorkoutWalker(null, plan.warmup);
+        }
+    });
+
+    document.getElementById('btn-mark-done').addEventListener('click', markTodayComplete);
 }
 
 // --- Service Worker Registration ---
@@ -235,19 +489,19 @@ if ('serviceWorker' in navigator) {
 // --- Initialize ---
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
+    initLogTabs();
     initRunForm();
     initWeightForm();
-    initStrengthForm();
+    initNutrition();
+    initButtons();
+    renderToday();
     renderRunHistory();
     renderWeightHistory();
-    renderStrengthHistory();
-    updateDashboard();
 
-    // Initialize Google Auth once the library loads
+    // Initialize Google Auth
     if (typeof google !== 'undefined') {
         initGoogleAuth();
     } else {
-        // Library loads async, wait for it
         window.addEventListener('load', () => {
             if (typeof google !== 'undefined') {
                 initGoogleAuth();

@@ -1,9 +1,12 @@
-const CACHE_NAME = 'fitness-tracker-v7';
+const CACHE_NAME = 'race-ready-v1';
 const ASSETS_TO_CACHE = [
     '/fitness-tracker/',
     '/fitness-tracker/index.html',
     '/fitness-tracker/styles.css',
     '/fitness-tracker/app.js',
+    '/fitness-tracker/training-plan.js',
+    '/fitness-tracker/workout-walker.js',
+    '/fitness-tracker/progress.js',
     '/fitness-tracker/google-sheets.js',
     '/fitness-tracker/manifest.json'
 ];
@@ -31,17 +34,18 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Fetch: network-first strategy (try network, fall back to cache)
+// Fetch: network-first strategy
 self.addEventListener('fetch', (event) => {
     // Skip non-GET requests and Google API calls
-    if (event.request.method !== 'GET' || event.request.url.includes('googleapis.com') || event.request.url.includes('accounts.google.com')) {
+    if (event.request.method !== 'GET' ||
+        event.request.url.includes('googleapis.com') ||
+        event.request.url.includes('accounts.google.com')) {
         return;
     }
 
     event.respondWith(
         fetch(event.request)
             .then((response) => {
-                // Got a good response, cache it for offline use
                 if (response && response.status === 200) {
                     const clone = response.clone();
                     caches.open(CACHE_NAME).then((cache) => {
@@ -51,7 +55,6 @@ self.addEventListener('fetch', (event) => {
                 return response;
             })
             .catch(() => {
-                // Network failed, try cache (offline mode)
                 return caches.match(event.request);
             })
     );

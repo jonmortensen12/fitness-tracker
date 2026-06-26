@@ -27,7 +27,6 @@ async function handleTokenResponse(response) {
     }
     accessToken = response.access_token;
 
-    // Get user info - await this so currentUser is set before anything else
     try {
         const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
             headers: { 'Authorization': `Bearer ${accessToken}` }
@@ -39,11 +38,8 @@ async function handleTokenResponse(response) {
         await syncFromSheet();
     } catch (err) {
         console.error('Failed to get user info:', err);
-        // Fall back to stored user
         currentUser = localStorage.getItem('fitness_user');
-        if (currentUser) {
-            updateAuthUI(true);
-        }
+        if (currentUser) updateAuthUI(true);
     }
 }
 
@@ -73,24 +69,20 @@ function updateAuthUI(signedIn) {
         userDisplay.textContent = currentUser;
         userDisplay.style.display = 'inline-block';
         syncStatus.textContent = 'Synced';
-        syncStatus.className = 'sync-status synced';
+        syncStatus.className = 'sync-badge synced';
     } else {
         signInBtn.style.display = 'inline-block';
         signOutBtn.style.display = 'none';
         userDisplay.style.display = 'none';
-        userDisplay.textContent = '';
         syncStatus.textContent = 'Offline';
-        syncStatus.className = 'sync-status offline';
+        syncStatus.className = 'sync-badge offline';
     }
 }
 
 // --- Sheet Operations ---
 
 async function appendToSheet(sheetName, values) {
-    if (!accessToken) {
-        console.log('Not signed in, saving locally only');
-        return false;
-    }
+    if (!accessToken) return false;
 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A:Z:append?valueInputOption=USER_ENTERED`;
 
@@ -101,18 +93,14 @@ async function appendToSheet(sheetName, values) {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                values: [values]
-            })
+            body: JSON.stringify({ values: [values] })
         });
 
         if (response.status === 401) {
-            // Token expired, try to re-auth
             accessToken = null;
             updateAuthUI(false);
             return false;
         }
-
         return response.ok;
     } catch (err) {
         console.error(`Failed to append to ${sheetName}:`, err);
@@ -129,9 +117,7 @@ async function readSheet(sheetName) {
         const response = await fetch(url, {
             headers: { 'Authorization': `Bearer ${accessToken}` }
         });
-
         if (!response.ok) return [];
-
         const data = await response.json();
         return data.values || [];
     } catch (err) {
@@ -140,7 +126,7 @@ async function readSheet(sheetName) {
     }
 }
 
-// --- Sync Helpers ---
+// --- Sync: Push to Sheet ---
 
 async function syncRunToSheet(entry) {
     const user = currentUser || localStorage.getItem('fitness_user') || 'anonymous';
@@ -149,6 +135,8 @@ async function syncRunToSheet(entry) {
         entry.date,
         entry.distance,
         entry.duration,
+        entry.incline || 0,
+        entry.calories || 0,
         entry.notes || '',
         entry.timestamp
     ]);
@@ -164,25 +152,33 @@ async function syncWeightToSheet(entry) {
     ]);
 }
 
-async function syncStrengthToSheet(entry) {
+async function syncNutritionToSheet(entry) {
     const user = currentUser || localStorage.getItem('fitness_user') || 'anonymous';
-    return appendToSheet('Strength', [
+    return appendToSheet('Nutrition', [
         user,
         entry.date,
-        entry.exercise,
-        entry.sets,
-        entry.reps,
-        entry.weight,
+        entry.rating,
         entry.timestamp
     ]);
 }
+
+async function syncCompletionToSheet(dateStr) {
+    const user = currentUser || localStorage.getItem('fitness_user') || 'anonymous';
+    return appendToSheet('Completions', [
+        user,
+        dateStr,
+        Date.now()
+    ]);
+}
+
+// --- Sync: Pull from Sheet ---
 
 async function syncFromSheet() {
     if (!accessToken) return;
 
     const syncStatus = document.getElementById('sync-status');
     syncStatus.textContent = 'Syncing...';
-    syncStatus.className = 'sync-status syncing';
+    syncStatus.className = 'sync-badge syncing';
 
     try {
         // Pull runs
@@ -191,12 +187,15 @@ async function syncFromSheet() {
             const runs = runRows.slice(1).map(row => ({
                 user: row[0],
                 date: row[1],
-                distance: parseFloat(row[2]),
-                duration: parseInt(row[3]),
-                notes: row[4] || '',
-                timestamp: parseInt(row[5]) || Date.now()
+                distance: parseFloat(row[2]) || 0,
+                duration: parseInt(row[3]) || 0,
+                incline: parseFloat(row[4]) || 0,
+                calories: parseInt(row[5]) || 0,
+                notes: row[6] || '',
+                timestamp: parseInt(row[7]) || Date.now()
             }));
-            Storage.set('runs_shared', runs);
+            // Merge: keep sheet data as source of truth
+            Storage.set('runs', runs.sort((a, b) => b.timestamp - a.timestamp));
         }
 
         // Pull weights
@@ -205,38 +204,42 @@ async function syncFromSheet() {
             const weights = weightRows.slice(1).map(row => ({
                 user: row[0],
                 date: row[1],
-                weight: parseFloat(row[2]),
+                weight: parseFloat(row[2]) || 0,
                 timestamp: parseInt(row[3]) || Date.now()
             }));
-            Storage.set('weights_shared', weights);
+            Storage.set('weights', weights.sort((a, b) => b.timestamp - a.timestamp));
         }
 
-        // Pull strength
-        const strengthRows = await readSheet('Strength');
-        if (strengthRows.length > 1) {
-            const strength = strengthRows.slice(1).map(row => ({
+        // Pull nutrition
+        const nutritionRows = await readSheet('Nutrition');
+        if (nutritionRows.length > 1) {
+            const nutrition = nutritionRows.slice(1).map(row => ({
                 user: row[0],
                 date: row[1],
-                exercise: row[2],
-                sets: parseInt(row[3]),
-                reps: parseInt(row[4]),
-                weight: parseFloat(row[5]),
-                timestamp: parseInt(row[6]) || Date.now()
+                rating: parseInt(row[2]) || 5,
+                timestamp: parseInt(row[3]) || Date.now()
             }));
-            Storage.set('strength_shared', strength);
+            Storage.set('nutrition', nutrition.sort((a, b) => b.timestamp - a.timestamp));
+        }
+
+        // Pull completions
+        const completionRows = await readSheet('Completions');
+        if (completionRows.length > 1) {
+            const dates = completionRows.slice(1).map(row => row[1]);
+            Storage.set('completed_dates', [...new Set(dates)]);
         }
 
         syncStatus.textContent = 'Synced';
-        syncStatus.className = 'sync-status synced';
+        syncStatus.className = 'sync-badge synced';
 
-        // Re-render with shared data
+        // Re-render active view
         renderRunHistory();
         renderWeightHistory();
-        renderStrengthHistory();
-        updateDashboard();
+        updateQuickStats();
+        updateReadinessBar();
     } catch (err) {
         console.error('Sync failed:', err);
         syncStatus.textContent = 'Sync failed';
-        syncStatus.className = 'sync-status offline';
+        syncStatus.className = 'sync-badge offline';
     }
 }

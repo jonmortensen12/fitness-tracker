@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitness Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Race Ready</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -14,107 +14,214 @@
 </head>
 <body>
     <header>
-        <h1>Fitness Tracker <span style="font-size:0.6rem; opacity:0.7;">v7</span></h1>
+        <div class="header-top">
+            <h1>Race Ready</h1>
+            <div class="header-meta">
+                <span id="race-countdown" class="countdown">-- days to go</span>
+                <span id="sync-status" class="sync-badge offline">Offline</span>
+            </div>
+        </div>
         <div id="auth-bar">
-            <span id="sync-status" class="sync-status offline">Offline</span>
-            <span id="user-display" style="display:none;"></span>
             <button id="btn-sign-in" onclick="signIn()">Sign In</button>
+            <span id="user-display" style="display:none;"></span>
             <button id="btn-sign-out" onclick="signOut()" style="display:none;">Sign Out</button>
         </div>
     </header>
 
     <main id="app">
-        <!-- Dashboard View -->
-        <section id="view-dashboard" class="view active">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2>Dashboard</h2>
-                <button id="btn-refresh" onclick="syncFromSheet()" style="background:none; border:1px solid var(--border); border-radius:8px; padding:6px 12px; font-size:0.8rem; cursor:pointer;">Refresh</button>
+        <!-- TODAY VIEW -->
+        <section id="view-today" class="view active">
+            <div class="race-readiness-bar">
+                <div class="readiness-fill" id="readiness-fill"></div>
+                <span class="readiness-label" id="readiness-label">0% Race Ready</span>
             </div>
-            <div class="cards">
-                <div class="card">
-                    <h3>Running</h3>
-                    <p class="stat" id="stat-running">0 mi this week</p>
+
+            <div class="today-card" id="today-card">
+                <div class="today-header">
+                    <h2 id="today-title">Today's Plan</h2>
+                    <span class="today-date" id="today-date"></span>
                 </div>
-                <div class="card">
-                    <h3>Weight</h3>
-                    <p class="stat" id="stat-weight">No entries yet</p>
+                <div class="today-workout" id="today-workout">
+                    <!-- Filled dynamically -->
                 </div>
-                <div class="card">
-                    <h3>Strength</h3>
-                    <p class="stat" id="stat-strength">0 workouts this week</p>
+                <div class="today-actions" id="today-actions">
+                    <button class="btn-primary" id="btn-start-workout">Start Workout</button>
+                    <button class="btn-secondary" id="btn-mark-done">Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Streak & quick stats -->
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-streak">0</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-week-miles">0</div>
+                    <div class="stat-label">Miles This Week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-weight">--</div>
+                    <div class="stat-label">Current Weight</div>
                 </div>
             </div>
         </section>
 
-        <!-- Runs View -->
-        <section id="view-runs" class="view">
-            <h2>Running Log</h2>
-            <form id="form-run" class="entry-form">
-                <label for="run-date">Date</label>
-                <input type="date" id="run-date" required>
-
-                <label for="run-distance">Distance (miles)</label>
-                <input type="number" id="run-distance" step="0.1" min="0" required>
-
-                <label for="run-duration">Duration (minutes)</label>
-                <input type="number" id="run-duration" step="1" min="0" required>
-
-                <label for="run-notes">Notes</label>
-                <input type="text" id="run-notes" placeholder="How did it feel?">
-
-                <button type="submit">Log Run</button>
-            </form>
-            <div id="run-history" class="history-list"></div>
+        <!-- WEEK VIEW -->
+        <section id="view-week" class="view">
+            <h2>This Week</h2>
+            <div class="week-grid" id="week-grid">
+                <!-- 7 day cards generated dynamically -->
+            </div>
         </section>
 
-        <!-- Weight View -->
-        <section id="view-weight" class="view">
-            <h2>Weight Log</h2>
-            <form id="form-weight" class="entry-form">
-                <label for="weight-date">Date</label>
-                <input type="date" id="weight-date" required>
+        <!-- LOG VIEW -->
+        <section id="view-log" class="view">
+            <h2>Log</h2>
+            <div class="log-tabs">
+                <button class="log-tab active" data-logtab="run">Run</button>
+                <button class="log-tab" data-logtab="weight">Weight</button>
+                <button class="log-tab" data-logtab="nutrition">Nutrition</button>
+            </div>
 
-                <label for="weight-value">Weight (lbs)</label>
-                <input type="number" id="weight-value" step="0.1" min="0" required>
+            <!-- Run Log -->
+            <div class="log-panel active" id="logpanel-run">
+                <form id="form-run" class="entry-form">
+                    <label for="run-date">Date</label>
+                    <input type="date" id="run-date" required>
 
-                <button type="submit">Log Weight</button>
-            </form>
-            <div id="weight-history" class="history-list"></div>
+                    <label for="run-distance">Distance (miles)</label>
+                    <input type="number" id="run-distance" step="0.1" min="0" required>
+
+                    <label for="run-duration">Duration (minutes)</label>
+                    <input type="number" id="run-duration" step="1" min="0" required>
+
+                    <label for="run-incline">Incline (%)</label>
+                    <input type="number" id="run-incline" step="0.5" min="0" max="15" value="0">
+
+                    <div class="calc-display" id="run-calcs">
+                        <span id="run-pace">Pace: --</span>
+                        <span id="run-calories">Calories: --</span>
+                    </div>
+
+                    <label for="run-notes">Notes</label>
+                    <input type="text" id="run-notes" placeholder="How did it feel?">
+
+                    <button type="submit" class="btn-primary">Log Run</button>
+                </form>
+                <h3>Recent Runs</h3>
+                <div id="run-history" class="history-list"></div>
+            </div>
+
+            <!-- Weight Log -->
+            <div class="log-panel" id="logpanel-weight">
+                <form id="form-weight" class="entry-form">
+                    <label for="weight-date">Date</label>
+                    <input type="date" id="weight-date" required>
+
+                    <label for="weight-value">Weight (lbs)</label>
+                    <input type="number" id="weight-value" step="0.1" min="0" required>
+
+                    <button type="submit" class="btn-primary">Log Weight</button>
+                </form>
+                <h3>Recent Weigh-Ins</h3>
+                <div id="weight-history" class="history-list"></div>
+            </div>
+
+            <!-- Nutrition Rating -->
+            <div class="log-panel" id="logpanel-nutrition">
+                <div class="nutrition-prompt">
+                    <p>How were your nutrition choices today?</p>
+                    <div class="nutrition-scale" id="nutrition-scale">
+                        <button class="nutrition-btn" data-rating="1">1</button>
+                        <button class="nutrition-btn" data-rating="2">2</button>
+                        <button class="nutrition-btn" data-rating="3">3</button>
+                        <button class="nutrition-btn" data-rating="4">4</button>
+                        <button class="nutrition-btn" data-rating="5">5</button>
+                        <button class="nutrition-btn" data-rating="6">6</button>
+                        <button class="nutrition-btn" data-rating="7">7</button>
+                        <button class="nutrition-btn" data-rating="8">8</button>
+                        <button class="nutrition-btn" data-rating="9">9</button>
+                        <button class="nutrition-btn" data-rating="10">10</button>
+                    </div>
+                    <div class="nutrition-labels">
+                        <span>Ate everything</span>
+                        <span>Perfect day</span>
+                    </div>
+                    <div id="nutrition-today-status" class="nutrition-status"></div>
+                </div>
+                <h3>This Week's Ratings</h3>
+                <div id="nutrition-history" class="history-list"></div>
+            </div>
         </section>
 
-        <!-- Strength View -->
-        <section id="view-strength" class="view">
-            <h2>Strength Log</h2>
-            <form id="form-strength" class="entry-form">
-                <label for="strength-date">Date</label>
-                <input type="date" id="strength-date" required>
+        <!-- PROGRESS VIEW -->
+        <section id="view-progress" class="view">
+            <h2>Progress</h2>
 
-                <label for="strength-exercise">Exercise</label>
-                <input type="text" id="strength-exercise" placeholder="e.g. Bench Press" required>
+            <!-- Race Readiness -->
+            <div class="progress-section">
+                <h3>Race Readiness</h3>
+                <div class="readiness-detail" id="readiness-detail">
+                    <!-- Breakdown of readiness factors -->
+                </div>
+            </div>
 
-                <label for="strength-sets">Sets</label>
-                <input type="number" id="strength-sets" min="1" required>
+            <!-- Weight Graph -->
+            <div class="progress-section">
+                <h3>Weight Trend</h3>
+                <canvas id="weight-chart" width="360" height="200"></canvas>
+                <div class="weight-projections" id="weight-projections"></div>
+            </div>
 
-                <label for="strength-reps">Reps</label>
-                <input type="number" id="strength-reps" min="1" required>
+            <!-- Weekly Scorecard -->
+            <div class="progress-section">
+                <h3>Weekly Scorecard</h3>
+                <div id="scorecard" class="scorecard"></div>
+            </div>
 
-                <label for="strength-weight">Weight (lbs)</label>
-                <input type="number" id="strength-weight" step="2.5" min="0">
+            <!-- Milestones -->
+            <div class="progress-section">
+                <h3>Milestones</h3>
+                <div id="milestones" class="milestones-list"></div>
+            </div>
+        </section>
 
-                <button type="submit">Log Exercise</button>
-            </form>
-            <div id="strength-history" class="history-list"></div>
+        <!-- WORKOUT VIEW -->
+        <section id="view-workout" class="view">
+            <div class="workout-walker" id="workout-walker">
+                <div class="workout-progress-bar">
+                    <div class="workout-progress-fill" id="workout-progress-fill"></div>
+                </div>
+                <div class="exercise-card" id="exercise-card">
+                    <h2 id="exercise-name">Exercise Name</h2>
+                    <div class="exercise-detail" id="exercise-detail">3 x 12</div>
+                    <div class="exercise-notes" id="exercise-notes"></div>
+                    <div class="rest-timer" id="rest-timer" style="display:none;">
+                        <div class="rest-time" id="rest-time">60</div>
+                        <div class="rest-label">Rest</div>
+                    </div>
+                </div>
+                <div class="exercise-actions">
+                    <button class="btn-secondary" id="btn-prev-exercise">Previous</button>
+                    <button class="btn-primary" id="btn-next-set">Done &#x2192;</button>
+                </div>
+                <div class="exercise-counter" id="exercise-counter">Exercise 1 of 6</div>
+            </div>
         </section>
     </main>
 
     <nav id="tab-bar">
-        <button class="tab active" data-view="dashboard">Dashboard</button>
-        <button class="tab" data-view="runs">Runs</button>
-        <button class="tab" data-view="weight">Weight</button>
-        <button class="tab" data-view="strength">Strength</button>
+        <button class="tab active" data-view="today">Today</button>
+        <button class="tab" data-view="week">Week</button>
+        <button class="tab" data-view="log">Log</button>
+        <button class="tab" data-view="progress">Progress</button>
     </nav>
 
+    <script src="training-plan.js"></script>
     <script src="google-sheets.js"></script>
+    <script src="progress.js"></script>
+    <script src="workout-walker.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
