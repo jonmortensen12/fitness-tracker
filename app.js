@@ -202,6 +202,35 @@ function renderWeek() {
 }
 
 // --- Day Editor (tap a day in Week view to change it) ---
+
+function togglePlanSection(btn) {
+    const content = btn.nextElementSibling;
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        btn.innerHTML = btn.innerHTML.replace('▶', '▼');
+    } else {
+        content.style.display = 'none';
+        btn.innerHTML = btn.innerHTML.replace('▼', '▶');
+    }
+}
+
+function previewWorkout(type) {
+    switch (type) {
+        case 'upper':
+            startWorkoutWalker(UPPER_BODY, NECK_PROTOCOL);
+            break;
+        case 'lower':
+            startWorkoutWalker(LOWER_BODY, IT_BAND_PROTOCOL);
+            break;
+        case 'itband':
+            startWorkoutWalker(null, IT_BAND_PROTOCOL);
+            break;
+        case 'neck':
+            startWorkoutWalker(null, NECK_PROTOCOL);
+            break;
+    }
+}
+
 function openDayEditor(dateStr) {
     const overrides = Storage.getObj('week_overrides');
     const weekNum = getWeekNumber(dateStr);
@@ -247,7 +276,15 @@ function openDayEditor(dateStr) {
 
     html += `
                 </div>
-                <button class="day-editor-btn reset-btn" onclick="resetDayOverride('${dateStr}')">Reset to Plan</button>
+                <div class="day-editor-intensity">
+                    <label>Custom notes/intensity:</label>
+                    <input type="text" id="day-editor-desc" placeholder="e.g. 4 miles easy, skip lunges..." value="${currentPlan && currentPlan.customDesc ? currentPlan.customDesc : ''}" />
+                    <button class="day-editor-btn" onclick="saveDayDesc('${dateStr}')">Save Notes</button>
+                </div>
+                <div class="day-editor-footer">
+                    <button class="day-editor-btn" onclick="previewDayWorkout('${dateStr}')">&#x1F441; Preview Workout</button>
+                    <button class="day-editor-btn reset-btn" onclick="resetDayOverride('${dateStr}')">Reset to Plan</button>
+                </div>
             </div>
         </div>
     `;
@@ -298,6 +335,61 @@ function resetDayOverride(dateStr) {
     const overrides = Storage.getObj('week_overrides');
     delete overrides[dateStr];
     Storage.set('week_overrides', overrides);
+
+    document.getElementById('day-editor-overlay').remove();
+    renderWeek();
+    renderToday();
+}
+
+function previewDayWorkout(dateStr) {
+    const overrides = Storage.getObj('week_overrides');
+    const weekNum = getWeekNumber(dateStr);
+    const dayKey = getDayOfWeek(dateStr);
+
+    let plan = overrides[dateStr];
+    if (!plan && weekNum >= 1 && weekNum <= 21) {
+        const weekPlan = getWeekPlan(weekNum);
+        plan = weekPlan[dayKey];
+    }
+
+    if (!plan) return;
+
+    // Close editor
+    const overlay = document.getElementById('day-editor-overlay');
+    if (overlay) overlay.remove();
+
+    // Launch walker based on workout type
+    if (plan.type === 'strength' && plan.exercises) {
+        startWorkoutWalker(plan.exercises, plan.warmup);
+    } else if (plan.title === 'Upper Body + Core') {
+        startWorkoutWalker(UPPER_BODY, NECK_PROTOCOL);
+    } else if (plan.title === 'Lower Body + Core') {
+        startWorkoutWalker(LOWER_BODY, IT_BAND_PROTOCOL);
+    } else if (plan.type === 'run' && plan.warmup) {
+        startWorkoutWalker(null, plan.warmup);
+    } else if (plan.type === 'run') {
+        startWorkoutWalker(null, IT_BAND_PROTOCOL.concat(NECK_PROTOCOL));
+    }
+}
+
+function saveDayDesc(dateStr) {
+    const descInput = document.getElementById('day-editor-desc');
+    const customDesc = descInput.value.trim();
+
+    const overrides = Storage.getObj('week_overrides');
+    if (!overrides[dateStr]) {
+        // Create override from current plan
+        const weekNum = getWeekNumber(dateStr);
+        const dayKey = getDayOfWeek(dateStr);
+        if (weekNum >= 1 && weekNum <= 21) {
+            const weekPlan = getWeekPlan(weekNum);
+            overrides[dateStr] = { ...weekPlan[dayKey] };
+        }
+    }
+    if (overrides[dateStr]) {
+        overrides[dateStr].customDesc = customDesc;
+        Storage.set('week_overrides', overrides);
+    }
 
     document.getElementById('day-editor-overlay').remove();
     renderWeek();

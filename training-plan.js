@@ -15,41 +15,110 @@ const START_WEIGHT = 228;
 
 // --- IT Band Protocol (daily) ---
 const IT_BAND_PROTOCOL = [
-    { name: 'Foam Roll TFL/Outer Thigh', sets: 1, reps: '60 sec each side', rest: 0, notes: 'Roll the muscle above the knee, not directly on IT band' },
-    { name: 'Cross-Leg Toe Touch Stretch', sets: 2, reps: '30 sec each side', rest: 0, notes: 'Cross one leg behind the other, reach for toes' },
-    { name: 'Pigeon Stretch', sets: 2, reps: '30 sec each side', rest: 0, notes: 'Or figure-4 stretch lying on back' },
-    { name: 'Clamshells', sets: 2, reps: 15, rest: 20, notes: 'Band above knees if too easy. Keep hips stacked.' },
-    { name: 'Single-Leg Glute Bridges', sets: 2, reps: 10, rest: 20, notes: 'Drive through heel, squeeze glute at top' },
-    { name: 'Side-Lying Leg Raises', sets: 2, reps: 15, rest: 20, notes: 'Straight leg, slightly behind you, toe pointed down' }
+    { name: 'Foam Roll TFL/Outer Thigh', sets: 1, reps: '60 sec each side', rest: 0,
+      notes: 'Roll the muscle above the knee, not directly on IT band',
+      cues: 'Lie on your side with the roller under your upper outer thigh (between hip and knee). Roll slowly, pausing on tender spots. Keep core engaged to control pressure.',
+      video: 'https://www.youtube.com/watch?v=iqY3sQRGzNI' },
+    { name: 'Cross-Leg Toe Touch Stretch', sets: 2, reps: '30 sec each side', rest: 0,
+      notes: 'Cross one leg behind the other, reach for toes',
+      cues: 'Stand tall. Cross your right leg behind your left. Reach down toward your left toes, pushing hips to the right. You should feel a stretch along the outside of your right hip/thigh.',
+      video: 'https://www.youtube.com/watch?v=5PXIy4Q_LhI' },
+    { name: 'Pigeon Stretch', sets: 2, reps: '30 sec each side', rest: 0,
+      notes: 'Or figure-4 stretch lying on back',
+      cues: 'From all fours, bring right knee forward behind your right wrist. Extend left leg back. Sink hips toward floor. Keep hips square. Feel the stretch deep in the right glute.',
+      video: 'https://www.youtube.com/watch?v=_fLxXFfxFSM' },
+    { name: 'Clamshells', sets: 2, reps: 15, rest: 20,
+      notes: 'Band above knees if too easy. Keep hips stacked.',
+      cues: 'Lie on your side, knees bent 45 degrees, feet together. Lift top knee as high as possible without rolling your hips back. Squeeze the glute at the top. Slow and controlled.',
+      video: 'https://www.youtube.com/watch?v=bC5MNJsVmPk' },
+    { name: 'Single-Leg Glute Bridges', sets: 2, reps: 10, rest: 20,
+      notes: 'Drive through heel, squeeze glute at top',
+      cues: 'Lie on back, one foot flat on floor close to butt. Extend other leg up. Push through your heel to lift hips. Squeeze glute hard at top for 1 second. Don\'t let hips rotate.',
+      video: 'https://www.youtube.com/watch?v=AVAXhy6pl7o' },
+    { name: 'Side-Lying Leg Raises', sets: 2, reps: 15, rest: 20,
+      notes: 'Straight leg, slightly behind you, toe pointed down',
+      cues: 'Lie on your side, bottom leg slightly bent for stability. Top leg straight, angled slightly behind you (not forward). Point toe slightly downward. Lift from the hip, not the ankle. Keep it slow.',
+      video: 'https://www.youtube.com/watch?v=jghbMRTjFQI' }
 ];
 
 // --- Neck Protocol (daily, 2 min) ---
 const NECK_PROTOCOL = [
-    { name: 'Chin Tucks', sets: 1, reps: '10 x 5 sec hold', rest: 0, notes: 'Pull chin straight back, make a double chin' },
-    { name: 'Levator Scapulae Stretch', sets: 2, reps: '30 sec each side', rest: 0, notes: 'Look down at armpit, gently pull head with hand' },
-    { name: 'Neck Rotations with Overpressure', sets: 1, reps: '5 each direction', rest: 0, notes: 'Turn head, gently push a bit further, hold 5 sec' }
+    { name: 'Chin Tucks', sets: 1, reps: '10 x 5 sec hold', rest: 0,
+      notes: 'Pull chin straight back, make a double chin',
+      cues: 'Sit or stand tall. Pull your chin straight back (not down) as if making a double chin. Hold 5 seconds. You should feel a gentle stretch at the base of your skull. Avoid tilting your head.',
+      video: 'https://www.youtube.com/watch?v=wQylqaCl8Zo' },
+    { name: 'Levator Scapulae Stretch', sets: 2, reps: '30 sec each side', rest: 0,
+      notes: 'Look down at armpit, gently pull head with hand',
+      cues: 'Turn your head 45 degrees (look at your armpit). Gently pull your head down with the same-side hand. Feel the stretch along the back/side of your neck. Keep opposite shoulder relaxed and down.',
+      video: 'https://www.youtube.com/watch?v=CsAMt7bmFHo' },
+    { name: 'Neck Rotations with Overpressure', sets: 1, reps: '5 each direction', rest: 0,
+      notes: 'Turn head, gently push a bit further, hold 5 sec',
+      cues: 'Turn your head as far as comfortable. Place fingertips on your chin and gently push a tiny bit further. Hold 5 seconds. Be gentle — this is mobility work, not a deep stretch. Never force through pain.',
+      video: 'https://www.youtube.com/watch?v=xMTw3WjfEfI' }
 ];
 
 // --- Strength: Upper Body + Core (Tuesday) ---
 const UPPER_BODY = [
-    { name: 'Incline Push-ups', sets: 3, reps: 'Max reps', rest: 60, notes: 'Use stairs. Progress to lower stair as you get stronger.' },
-    { name: 'Dumbbell Rows', sets: 3, reps: 10, rest: 60, notes: '25-30 lbs each arm. Pull to hip, squeeze shoulder blade.' },
-    { name: 'Overhead Press', sets: 3, reps: 10, rest: 60, notes: '20-25 lbs. Stand tall, brace core.' },
-    { name: 'Band Pull-Aparts', sets: 3, reps: 15, rest: 45, notes: 'Arms straight, pull band to chest level. Great for posture.' },
-    { name: 'Dead Hang', sets: 3, reps: '15-30 sec', rest: 45, notes: 'Pull-up bar. Decompresses spine, builds grip for pull-ups.' },
-    { name: 'Negative Pull-ups', sets: 3, reps: '3-5', rest: 60, notes: 'Jump up, lower yourself over 5 seconds. Key to first pull-up.' },
-    { name: 'Plank', sets: 3, reps: '30-45 sec', rest: 45, notes: 'Elbows under shoulders, squeeze glutes, don\'t sag.' }
+    { name: 'Incline Push-ups', sets: 3, reps: 'Max reps', rest: 60,
+      notes: 'Use stairs. Progress to lower stair as you get stronger.',
+      cues: 'Hands on stair edge, shoulder-width apart. Body in a straight line from head to heels. Lower chest to the stair, elbows at ~45 degrees (not flared out). Push back up. Once you can do 15+, move to a lower stair.',
+      video: 'https://www.youtube.com/watch?v=WmMLkpCnUkQ' },
+    { name: 'Dumbbell Rows', sets: 3, reps: 10, rest: 60,
+      notes: '25-30 lbs each arm. Pull to hip, squeeze shoulder blade.',
+      cues: 'One hand and knee on bench/couch for support. Other hand holds dumbbell. Pull the weight to your hip (not your armpit). Squeeze your shoulder blade back at the top. Keep core tight, back flat.',
+      video: 'https://www.youtube.com/watch?v=xl1YEsQpWwg' },
+    { name: 'Overhead Press', sets: 3, reps: 10, rest: 60,
+      notes: '20-25 lbs. Stand tall, brace core.',
+      cues: 'Stand with feet shoulder-width, dumbbells at shoulder height. Brace your core (squeeze abs). Press straight up until arms are fully extended. Lower slowly under control. Don\'t arch your lower back.',
+      video: 'https://www.youtube.com/watch?v=qEwKCR5JCog' },
+    { name: 'Band Pull-Aparts', sets: 3, reps: 15, rest: 45,
+      notes: 'Arms straight, pull band to chest level. Great for posture.',
+      cues: 'Hold band in front at shoulder height, arms straight, slight tension. Pull the band apart by squeezing shoulder blades together. End with hands wide, band touching your chest. Slow return. Helps counter desk posture.',
+      video: 'https://www.youtube.com/watch?v=fPJqk21Amn4' },
+    { name: 'Dead Hang', sets: 3, reps: '15-30 sec', rest: 45,
+      notes: 'Pull-up bar. Decompresses spine, builds grip for pull-ups.',
+      cues: 'Grab the bar with an overhand grip, shoulder-width. Let your body hang with arms fully straight. Relax your shoulders slightly (active hang: pull shoulders down from ears). Breathe. Great for grip, shoulders, and spine decompression.',
+      video: 'https://www.youtube.com/watch?v=M9L1i3esNVk' },
+    { name: 'Negative Pull-ups', sets: 3, reps: '3-5', rest: 60,
+      notes: 'Jump up, lower yourself over 5 seconds. Key to first pull-up.',
+      cues: 'Jump or step up so your chin is over the bar. Now lower yourself as slowly as possible (aim for 5 seconds). Fight gravity the whole way down. This builds the strength for your first full pull-up faster than anything else.',
+      video: 'https://www.youtube.com/watch?v=S3gNgnAR37g' },
+    { name: 'Plank', sets: 3, reps: '30-45 sec', rest: 45,
+      notes: 'Elbows under shoulders, squeeze glutes, don\'t sag.',
+      cues: 'Forearms on ground, elbows directly under shoulders. Body in a straight line — squeeze glutes, brace abs as if someone is about to punch your stomach. Don\'t let hips sag or pike up. Breathe normally.',
+      video: 'https://www.youtube.com/watch?v=BQu26ABuVS0' }
 ];
 
 // --- Strength: Lower Body + Core (Thursday summer / Friday fall) ---
 const LOWER_BODY = [
-    { name: 'Goblet Squats', sets: 3, reps: 12, rest: 60, notes: 'Hold one 30 lb dumbbell at chest. Sit back, knees track toes.' },
-    { name: 'Romanian Deadlifts', sets: 3, reps: 10, rest: 60, notes: 'Both dumbbells, 25-30 lbs. Hinge at hips, slight knee bend.' },
-    { name: 'Walking Lunges', sets: 3, reps: '10 each leg', rest: 60, notes: 'Bodyweight or light dumbbells. Big step, knee doesn\'t pass toe.' },
-    { name: 'Calf Raises', sets: 3, reps: 15, rest: 45, notes: 'Edge of a stair for full range. Slow on the way down.' },
-    { name: 'Clamshells (Banded)', sets: 3, reps: 15, rest: 30, notes: 'Doubles as IT band rehab. Keep hips stacked.' },
-    { name: 'Copenhagen Plank', sets: 3, reps: '15 sec each side', rest: 30, notes: 'Top leg on bench/chair edge. Inner thigh + hip stability.' },
-    { name: 'Dead Bugs', sets: 3, reps: '10 each side', rest: 30, notes: 'Low back pressed to floor. Slow and controlled.' }
+    { name: 'Goblet Squats', sets: 3, reps: 12, rest: 60,
+      notes: 'Hold one 30 lb dumbbell at chest. Sit back, knees track toes.',
+      cues: 'Hold dumbbell vertically at your chest with both hands. Feet shoulder-width, toes slightly out. Sit back and down as if into a chair. Knees track over toes (don\'t cave in). Go as deep as comfortable. Drive up through heels.',
+      video: 'https://www.youtube.com/watch?v=MeIiIdhvXT4' },
+    { name: 'Romanian Deadlifts', sets: 3, reps: 10, rest: 60,
+      notes: 'Both dumbbells, 25-30 lbs. Hinge at hips, slight knee bend.',
+      cues: 'Stand holding dumbbells in front of thighs. Slight bend in knees (keep constant throughout). Push hips back and hinge forward, sliding weights down your legs. Feel the stretch in your hamstrings. Drive hips forward to stand. Back stays flat throughout.',
+      video: 'https://www.youtube.com/watch?v=XISJxsccN68' },
+    { name: 'Walking Lunges', sets: 3, reps: '10 each leg', rest: 60,
+      notes: 'Bodyweight or light dumbbells. Big step, knee doesn\'t pass toe.',
+      cues: 'Take a big step forward. Lower until back knee nearly touches the floor. Front knee stays over ankle (not past toes). Push off front foot to step into the next lunge. Keep torso upright, core engaged.',
+      video: 'https://www.youtube.com/watch?v=L8fvypPH3qs' },
+    { name: 'Calf Raises', sets: 3, reps: 15, rest: 45,
+      notes: 'Edge of a stair for full range. Slow on the way down.',
+      cues: 'Stand on the edge of a stair with heels hanging off. Rise up onto your toes as high as possible. Squeeze at the top. Lower slowly below stair level for a full stretch. Hold something for balance.',
+      video: 'https://www.youtube.com/watch?v=gwLzBJYoWlI' },
+    { name: 'Clamshells (Banded)', sets: 3, reps: 15, rest: 30,
+      notes: 'Doubles as IT band rehab. Keep hips stacked.',
+      cues: 'Same as IT band protocol clamshells but with a resistance band above your knees for extra challenge. Focus on not letting your hips roll backward.',
+      video: 'https://www.youtube.com/watch?v=bC5MNJsVmPk' },
+    { name: 'Copenhagen Plank', sets: 3, reps: '15 sec each side', rest: 30,
+      notes: 'Top leg on bench/chair edge. Inner thigh + hip stability.',
+      cues: 'Side plank position with top leg resting on a bench or sturdy chair (inner thigh on the edge). Bottom leg hangs free. Lift hips to form a straight line. Hold. This targets the adductors (inner thigh) which support knee stability.',
+      video: 'https://www.youtube.com/watch?v=ePjd3HO5rMI' },
+    { name: 'Dead Bugs', sets: 3, reps: '10 each side', rest: 30,
+      notes: 'Low back pressed to floor. Slow and controlled.',
+      cues: 'Lie on back, arms pointing to ceiling, knees bent 90 degrees. Press your lower back firmly into the floor (flatten the arch). Slowly extend one arm overhead and opposite leg out straight. Return. Switch sides. If your back arches, you\'ve gone too far.',
+      video: 'https://www.youtube.com/watch?v=4XLEnwUr1d8' }
 ];
 
 // --- Weekly Plan Generator ---

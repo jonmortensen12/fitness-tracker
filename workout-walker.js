@@ -72,8 +72,15 @@ function renderCurrentExercise() {
             : `${exercise.reps} reps`;
     }
 
-    // Notes
-    notesEl.textContent = exercise.notes || '';
+    // Notes + cues + video
+    let infoHtml = exercise.notes || '';
+    if (exercise.cues) {
+        infoHtml = `<div class="exercise-cues">${exercise.cues}</div>`;
+        if (exercise.video) {
+            infoHtml += `<a href="${exercise.video}" target="_blank" class="exercise-video-link">&#x1F3AC; Watch demo</a>`;
+        }
+    }
+    notesEl.innerHTML = infoHtml;
 
     // Counter
     counterEl.textContent = `Exercise ${currentOverall} of ${total}`;

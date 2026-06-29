@@ -851,3 +851,116 @@ header h1 {
     font-size: 0.8rem;
     border-style: dashed;
 }
+
+
+/* Plan Overview Sections */
+.plan-overview {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.plan-section {
+    border-bottom: 1px solid var(--border);
+}
+
+.plan-section:last-child {
+    border-bottom: none;
+}
+
+.plan-section-header {
+    width: 100%;
+    text-align: left;
+    padding: 10px 0;
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.plan-section-content {
+    padding: 0 0 12px 0;
+}
+
+.plan-section-content p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.plan-section-content p strong {
+    color: var(--text);
+}
+
+/* Preview Buttons */
+.preview-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.preview-buttons .btn-secondary {
+    font-size: 0.8rem;
+    padding: 10px 8px;
+}
+
+/* Exercise Cues and Video in Workout Walker */
+.exercise-cues {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.exercise-video-link {
+    display: inline-block;
+    font-size: 0.8rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 4px 10px;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    margin-top: 4px;
+}
+
+.exercise-video-link:active {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+/* Day Editor - Intensity and Footer */
+.day-editor-intensity {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.day-editor-intensity label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.day-editor-intensity input {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.day-editor-intensity input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.day-editor-footer {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
