@@ -19,21 +19,46 @@ function initGoogleAuth() {
         callback: handleTokenResponse
     });
 
-    // Try to silently restore the session if user was previously signed in
+    // Restore session state from localStorage
     const savedUser = localStorage.getItem('fitness_user');
+    const savedToken = localStorage.getItem('fitness_token');
+    const tokenExpiry = parseInt(localStorage.getItem('fitness_token_expiry') || '0');
+
     if (savedUser) {
         currentUser = savedUser;
-        // Attempt silent token refresh (prompt: '' means no UI if already authorized)
-        tokenClient.requestAccessToken({ prompt: '' });
+
+        if (savedToken && Date.now() < tokenExpiry) {
+            // Token still valid, restore it
+            accessToken = savedToken;
+            updateAuthUI(true);
+            syncFromSheet();
+        } else {
+            // Token expired, try silent refresh
+            localStorage.removeItem('fitness_token');
+            localStorage.removeItem('fitness_token_expiry');
+            tokenClient.requestAccessToken({ prompt: '' });
+        }
     }
 }
 
 async function handleTokenResponse(response) {
     if (response.error) {
         console.error('Auth error:', response.error);
+        // If silent refresh failed, just show sign-in button
+        // but keep user display if we have a saved user
+        const savedUser = localStorage.getItem('fitness_user');
+        if (savedUser) {
+            currentUser = savedUser;
+            // Show as "needs re-auth" but not fully signed out
+            updateAuthUI(false);
+        }
         return;
     }
     accessToken = response.access_token;
+
+    // Save token with expiry (tokens last ~3600 seconds = 1 hour)
+    localStorage.setItem('fitness_token', accessToken);
+    localStorage.setItem('fitness_token_expiry', String(Date.now() + 3500 * 1000)); // slightly less than 1hr
 
     try {
         const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
@@ -75,6 +100,43 @@ async function pushUnsyncedEntries() {
     Storage.set('unsynced_runs', []);
     Storage.set('unsynced_weights', []);
     Storage.set('unsynced_nutrition', []);
+
+    // Also check main storage for entries that predate the queue system
+    // Compare local entries against what's in the sheet
+    await pushMissingLocalEntries();
+}
+
+// Check if local entries exist that aren't in the sheet yet
+async function pushMissingLocalEntries() {
+    // Read what's currently in the sheet
+    const sheetWeights = await readSheet('Weight');
+    const sheetRuns = await readSheet('Runs');
+
+    // Get local entries
+    const localWeights = Storage.get('weights');
+    const localRuns = Storage.get('runs');
+
+    // Find local weights not in sheet (compare by timestamp)
+    const sheetWeightTimestamps = new Set(
+        sheetWeights.slice(1).map(row => String(row[3]))
+    );
+    const missingWeights = localWeights.filter(w => !sheetWeightTimestamps.has(String(w.timestamp)));
+
+    for (const entry of missingWeights) {
+        const user = currentUser || localStorage.getItem('fitness_user') || 'anonymous';
+        await appendToSheet('Weight', [user, entry.date, entry.weight, entry.timestamp]);
+    }
+
+    // Find local runs not in sheet
+    const sheetRunTimestamps = new Set(
+        sheetRuns.slice(1).map(row => String(row[7]))
+    );
+    const missingRuns = localRuns.filter(r => !sheetRunTimestamps.has(String(r.timestamp)));
+
+    for (const entry of missingRuns) {
+        const user = currentUser || localStorage.getItem('fitness_user') || 'anonymous';
+        await appendToSheet('Runs', [user, entry.date, entry.distance, entry.duration, entry.incline || 0, entry.calories || 0, entry.notes || '', entry.timestamp]);
+    }
 }
 
 function signIn() {
@@ -88,6 +150,8 @@ function signOut() {
     accessToken = null;
     currentUser = null;
     localStorage.removeItem('fitness_user');
+    localStorage.removeItem('fitness_token');
+    localStorage.removeItem('fitness_token_expiry');
     updateAuthUI(false);
 }
 
@@ -131,7 +195,10 @@ async function appendToSheet(sheetName, values) {
         });
 
         if (response.status === 401) {
+            // Token expired, clear stored token and re-auth
             accessToken = null;
+            localStorage.removeItem('fitness_token');
+            localStorage.removeItem('fitness_token_expiry');
             updateAuthUI(false);
             return false;
         }
