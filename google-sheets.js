@@ -33,9 +33,8 @@ function initGoogleAuth() {
             updateAuthUI(true);
             syncFromSheet();
         } else {
-            // Token expired, try silent refresh
-            localStorage.removeItem('fitness_token');
-            localStorage.removeItem('fitness_token_expiry');
+            // Token expired — show as signed in (we have user identity) but refresh token silently
+            updateAuthUI(true);
             tokenClient.requestAccessToken({ prompt: '' });
         }
     }
@@ -44,13 +43,19 @@ function initGoogleAuth() {
 async function handleTokenResponse(response) {
     if (response.error) {
         console.error('Auth error:', response.error);
-        // If silent refresh failed, just show sign-in button
-        // but keep user display if we have a saved user
+        // Silent refresh failed — user is still "signed in" locally
+        // but we can't talk to Google Sheets until they tap Sign In
         const savedUser = localStorage.getItem('fitness_user');
         if (savedUser) {
             currentUser = savedUser;
-            // Show as "needs re-auth" but not fully signed out
-            updateAuthUI(false);
+            document.getElementById('sync-status').textContent = 'Tap to sync';
+            document.getElementById('sync-status').className = 'sync-badge offline';
+            // Show sign-in as a "refresh" button rather than hiding user
+            document.getElementById('btn-sign-in').textContent = 'Reconnect';
+            document.getElementById('btn-sign-in').style.display = 'inline-block';
+            document.getElementById('btn-sign-out').style.display = 'none';
+            document.getElementById('user-display').textContent = currentUser;
+            document.getElementById('user-display').style.display = 'inline-block';
         }
         return;
     }
@@ -58,7 +63,7 @@ async function handleTokenResponse(response) {
 
     // Save token with expiry (tokens last ~3600 seconds = 1 hour)
     localStorage.setItem('fitness_token', accessToken);
-    localStorage.setItem('fitness_token_expiry', String(Date.now() + 3500 * 1000)); // slightly less than 1hr
+    localStorage.setItem('fitness_token_expiry', String(Date.now() + 3500 * 1000));
 
     try {
         const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
@@ -68,6 +73,9 @@ async function handleTokenResponse(response) {
         currentUser = info.email;
         localStorage.setItem('fitness_user', currentUser);
         updateAuthUI(true);
+
+        // Reset button text in case it was "Reconnect"
+        document.getElementById('btn-sign-in').textContent = 'Sign In';
 
         // Sync any locally-stored entries that weren't pushed yet
         await pushUnsyncedEntries();
