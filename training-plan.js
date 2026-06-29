@@ -163,8 +163,9 @@ function getRaceWeek() {
 
 function getWeekNumber(dateStr) {
     // Returns 1-21 based on plan start date, or 0 if before plan, 22+ if after
-    const date = new Date(dateStr);
-    const start = new Date(PLAN_START);
+    // Use noon to avoid timezone issues with date-only strings
+    const date = new Date(dateStr + 'T12:00:00');
+    const start = new Date(PLAN_START + 'T12:00:00');
     const diffDays = Math.floor((date - start) / (1000 * 60 * 60 * 24));
     return Math.floor(diffDays / 7) + 1;
 }
@@ -172,7 +173,7 @@ function getWeekNumber(dateStr) {
 function getDayOfWeek(dateStr) {
     // Returns 'mon', 'tue', etc.
     const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-    return days[new Date(dateStr).getDay()];
+    return days[new Date(dateStr + 'T12:00:00').getDay()];
 }
 
 function getTodayPlan() {
@@ -191,7 +192,7 @@ function getWeekPlanForDate(dateStr) {
 }
 
 function getMonday(dateStr) {
-    const d = new Date(dateStr);
+    const d = new Date(dateStr + 'T12:00:00');
     const day = d.getDay();
     const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     d.setDate(diff);
@@ -200,9 +201,9 @@ function getMonday(dateStr) {
 
 function getDaysUntilRace() {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const race = new Date(RACE_DATE);
-    return Math.ceil((race - today) / (1000 * 60 * 60 * 24));
+    today.setHours(12, 0, 0, 0);
+    const race = new Date(RACE_DATE + 'T12:00:00');
+    return Math.round((race - today) / (1000 * 60 * 60 * 24));
 }
 
 function getPhaseLabel(weekNum) {

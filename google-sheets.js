@@ -18,6 +18,14 @@ function initGoogleAuth() {
         scope: SCOPES,
         callback: handleTokenResponse
     });
+
+    // Try to silently restore the session if user was previously signed in
+    const savedUser = localStorage.getItem('fitness_user');
+    if (savedUser) {
+        currentUser = savedUser;
+        // Attempt silent token refresh (prompt: '' means no UI if already authorized)
+        tokenClient.requestAccessToken({ prompt: '' });
+    }
 }
 
 async function handleTokenResponse(response) {
@@ -35,12 +43,38 @@ async function handleTokenResponse(response) {
         currentUser = info.email;
         localStorage.setItem('fitness_user', currentUser);
         updateAuthUI(true);
+
+        // Sync any locally-stored entries that weren't pushed yet
+        await pushUnsyncedEntries();
+
         await syncFromSheet();
     } catch (err) {
         console.error('Failed to get user info:', err);
         currentUser = localStorage.getItem('fitness_user');
         if (currentUser) updateAuthUI(true);
     }
+}
+
+// Push entries that were logged while offline/not signed in
+async function pushUnsyncedEntries() {
+    const unsyncedRuns = Storage.get('unsynced_runs');
+    const unsyncedWeights = Storage.get('unsynced_weights');
+    const unsyncedNutrition = Storage.get('unsynced_nutrition');
+
+    for (const entry of unsyncedRuns) {
+        await syncRunToSheet(entry);
+    }
+    for (const entry of unsyncedWeights) {
+        await syncWeightToSheet(entry);
+    }
+    for (const entry of unsyncedNutrition) {
+        await syncNutritionToSheet(entry);
+    }
+
+    // Clear unsynced queues
+    Storage.set('unsynced_runs', []);
+    Storage.set('unsynced_weights', []);
+    Storage.set('unsynced_nutrition', []);
 }
 
 function signIn() {
@@ -130,36 +164,36 @@ async function readSheet(sheetName) {
 
 async function syncRunToSheet(entry) {
     const user = currentUser || localStorage.getItem('fitness_user') || 'anonymous';
-    return appendToSheet('Runs', [
-        user,
-        entry.date,
-        entry.distance,
-        entry.duration,
-        entry.incline || 0,
-        entry.calories || 0,
-        entry.notes || '',
-        entry.timestamp
-    ]);
+    const values = [user, entry.date, entry.distance, entry.duration, entry.incline || 0, entry.calories || 0, entry.notes || '', entry.timestamp];
+
+    if (!accessToken) {
+        // Queue for later sync
+        Storage.addEntry('unsynced_runs', entry);
+        return false;
+    }
+    return appendToSheet('Runs', values);
 }
 
 async function syncWeightToSheet(entry) {
     const user = currentUser || localStorage.getItem('fitness_user') || 'anonymous';
-    return appendToSheet('Weight', [
-        user,
-        entry.date,
-        entry.weight,
-        entry.timestamp
-    ]);
+    const values = [user, entry.date, entry.weight, entry.timestamp];
+
+    if (!accessToken) {
+        Storage.addEntry('unsynced_weights', entry);
+        return false;
+    }
+    return appendToSheet('Weight', values);
 }
 
 async function syncNutritionToSheet(entry) {
     const user = currentUser || localStorage.getItem('fitness_user') || 'anonymous';
-    return appendToSheet('Nutrition', [
-        user,
-        entry.date,
-        entry.rating,
-        entry.timestamp
-    ]);
+    const values = [user, entry.date, entry.rating, entry.timestamp];
+
+    if (!accessToken) {
+        Storage.addEntry('unsynced_nutrition', entry);
+        return false;
+    }
+    return appendToSheet('Nutrition', values);
 }
 
 async function syncCompletionToSheet(dateStr) {
