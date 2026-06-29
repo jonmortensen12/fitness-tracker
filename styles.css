@@ -782,3 +782,72 @@ header h1 {
     padding: 30px 20px;
     font-size: 0.85rem;
 }
+
+
+/* Day Editor Overlay */
+.day-editor-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+}
+
+.day-editor {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 20px;
+    width: 100%;
+    max-width: 320px;
+    border: 1px solid var(--border);
+}
+
+.day-editor h3 {
+    color: var(--text);
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.day-editor-options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.day-editor-btn {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+}
+
+.day-editor-btn:active {
+    background: var(--bg-card-hover);
+}
+
+.day-editor-btn.selected {
+    border-color: var(--accent);
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.day-editor-btn.reset-btn {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-style: dashed;
+}

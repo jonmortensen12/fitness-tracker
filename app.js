@@ -60,8 +60,17 @@ function renderToday() {
     document.getElementById('race-countdown').textContent =
         daysLeft > 0 ? `${daysLeft} days to go` : 'Race Day!';
 
-    // Today's plan
-    const plan = getTodayPlan();
+    // Today's plan (check overrides first)
+    const overrides = Storage.getObj('week_overrides');
+    const todayStr = Storage.today();
+    let plan;
+
+    if (overrides[todayStr]) {
+        const weekNum = getWeekNumber(todayStr);
+        plan = { ...overrides[todayStr], week: weekNum, day: getDayOfWeek(todayStr), date: todayStr };
+    } else {
+        plan = getTodayPlan();
+    }
     const todayCard = document.getElementById('today-workout');
     const todayTitle = document.getElementById('today-title');
     const todayDate = document.getElementById('today-date');
@@ -142,20 +151,29 @@ function renderWeek() {
     const today = Storage.today();
     const monday = getMonday(today);
     const completed = getCompletedDates();
+    const overrides = Storage.getObj('week_overrides'); // custom edits to the plan
 
     const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     let html = '';
 
     for (let i = 0; i < 7; i++) {
-        const d = new Date(monday);
+        const d = new Date(monday + 'T12:00:00');
         d.setDate(d.getDate() + i);
-        const dateStr = d.toISOString().split('T')[0];
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${dd}`;
         const dayKey = getDayOfWeek(dateStr);
         const weekNum = getWeekNumber(dateStr);
 
         let workout = '—';
         let type = 'rest';
-        if (weekNum >= 1 && weekNum <= 21) {
+
+        // Check for user override first
+        if (overrides[dateStr]) {
+            workout = overrides[dateStr].title;
+            type = overrides[dateStr].type;
+        } else if (weekNum >= 1 && weekNum <= 21) {
             const weekPlan = getWeekPlan(weekNum);
             if (weekPlan[dayKey]) {
                 workout = weekPlan[dayKey].title;
@@ -172,7 +190,7 @@ function renderWeek() {
         if (isPast && type !== 'rest') classes += ' missed';
 
         html += `
-            <div class="${classes}" data-date="${dateStr}">
+            <div class="${classes}" data-date="${dateStr}" data-type="${type}" onclick="openDayEditor('${dateStr}')">
                 <div class="week-day-name">${dayNames[i]}</div>
                 <div class="week-day-workout">${workout}</div>
                 <div class="week-day-check"></div>
@@ -181,6 +199,109 @@ function renderWeek() {
     }
 
     container.innerHTML = html;
+}
+
+// --- Day Editor (tap a day in Week view to change it) ---
+function openDayEditor(dateStr) {
+    const overrides = Storage.getObj('week_overrides');
+    const weekNum = getWeekNumber(dateStr);
+    const dayKey = getDayOfWeek(dateStr);
+
+    // Get current plan for this day
+    let currentPlan = null;
+    if (overrides[dateStr]) {
+        currentPlan = overrides[dateStr];
+    } else if (weekNum >= 1 && weekNum <= 21) {
+        const weekPlan = getWeekPlan(weekNum);
+        currentPlan = weekPlan[dayKey];
+    }
+
+    // Available workout options
+    const options = [
+        { type: 'run', title: 'Incline Run' },
+        { type: 'run', title: 'Easy Run' },
+        { type: 'run', title: 'Tempo Run' },
+        { type: 'run', title: 'Long Run' },
+        { type: 'strength', title: 'Upper Body + Core' },
+        { type: 'strength', title: 'Lower Body + Core' },
+        { type: 'rest', title: 'Rest' },
+        { type: 'rest', title: 'Ultimate Frisbee' },
+        { type: 'rest', title: 'Family Walk/Hike' }
+    ];
+
+    const dateLabel = formatDateFull(dateStr);
+    const currentTitle = currentPlan ? currentPlan.title : 'Rest';
+
+    let html = `
+        <div class="day-editor-overlay" id="day-editor-overlay" onclick="closeDayEditor(event)">
+            <div class="day-editor">
+                <h3>${dateLabel}</h3>
+                <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">Current: ${currentTitle}</p>
+                <div class="day-editor-options">
+    `;
+
+    options.forEach(opt => {
+        const selected = opt.title === currentTitle ? 'selected' : '';
+        html += `<button class="day-editor-btn ${selected}" onclick="setDayOverride('${dateStr}', '${opt.type}', '${opt.title}')">${opt.title}</button>`;
+    });
+
+    html += `
+                </div>
+                <button class="day-editor-btn reset-btn" onclick="resetDayOverride('${dateStr}')">Reset to Plan</button>
+            </div>
+        </div>
+    `;
+
+    // Remove existing editor if open
+    const existing = document.getElementById('day-editor-overlay');
+    if (existing) existing.remove();
+
+    document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeDayEditor(event) {
+    if (event.target.id === 'day-editor-overlay') {
+        document.getElementById('day-editor-overlay').remove();
+    }
+}
+
+function setDayOverride(dateStr, type, title) {
+    const overrides = Storage.getObj('week_overrides');
+
+    // Get the full plan details for this workout type
+    const weekNum = getWeekNumber(dateStr);
+    let desc = '';
+    let exercises = null;
+    let warmup = null;
+
+    if (weekNum >= 1 && weekNum <= 21) {
+        const weekPlan = getWeekPlan(weekNum);
+        // Find matching day in plan to grab description
+        Object.values(weekPlan).forEach(day => {
+            if (day.title === title) {
+                desc = day.desc;
+                exercises = day.exercises;
+                warmup = day.warmup;
+            }
+        });
+    }
+
+    overrides[dateStr] = { type, title, desc: desc || title, exercises, warmup };
+    Storage.set('week_overrides', overrides);
+
+    document.getElementById('day-editor-overlay').remove();
+    renderWeek();
+    renderToday(); // in case today was changed
+}
+
+function resetDayOverride(dateStr) {
+    const overrides = Storage.getObj('week_overrides');
+    delete overrides[dateStr];
+    Storage.set('week_overrides', overrides);
+
+    document.getElementById('day-editor-overlay').remove();
+    renderWeek();
+    renderToday();
 }
 
 // --- Log View ---
