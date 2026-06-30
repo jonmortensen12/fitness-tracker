@@ -59,66 +59,78 @@ const NECK_PROTOCOL = [
 
 // --- Strength: Upper Body + Core (Tuesday) ---
 const UPPER_BODY = [
-    { name: 'Incline Push-ups', sets: 3, reps: 'Max reps', rest: 60,
-      notes: 'Use stairs. Progress to lower stair as you get stronger.',
-      cues: 'Hands on stair edge, shoulder-width apart. Body in a straight line from head to heels. Lower chest to the stair, elbows at ~45 degrees (not flared out). Push back up. Once you can do 15+, move to a lower stair.',
-      video: 'https://www.youtube.com/watch?v=WmMLkpCnUkQ' },
-    { name: 'Dumbbell Rows', sets: 3, reps: 10, rest: 60,
-      notes: '25-30 lbs each arm. Pull to hip, squeeze shoulder blade.',
-      cues: 'One hand and knee on bench/couch for support. Other hand holds dumbbell. Pull the weight to your hip (not your armpit). Squeeze your shoulder blade back at the top. Keep core tight, back flat.',
-      video: 'https://www.youtube.com/watch?v=xl1YEsQpWwg' },
-    { name: 'Overhead Press', sets: 3, reps: 10, rest: 60,
-      notes: '20-25 lbs. Stand tall, brace core.',
-      cues: 'Stand with feet shoulder-width, dumbbells at shoulder height. Brace your core (squeeze abs). Press straight up until arms are fully extended. Lower slowly under control. Don\'t arch your lower back.',
-      video: 'https://www.youtube.com/watch?v=qEwKCR5JCog' },
-    { name: 'Band Pull-Aparts', sets: 3, reps: 15, rest: 45,
-      notes: 'Arms straight, pull band to chest level. Great for posture.',
-      cues: 'Hold band in front at shoulder height, arms straight, slight tension. Pull the band apart by squeezing shoulder blades together. End with hands wide, band touching your chest. Slow return. Helps counter desk posture.',
-      video: 'https://www.youtube.com/watch?v=fPJqk21Amn4' },
-    { name: 'Dead Hang', sets: 3, reps: '15-30 sec', rest: 45,
-      notes: 'Pull-up bar. Decompresses spine, builds grip for pull-ups.',
-      cues: 'Grab the bar with an overhand grip, shoulder-width. Let your body hang with arms fully straight. Relax your shoulders slightly (active hang: pull shoulders down from ears). Breathe. Great for grip, shoulders, and spine decompression.',
-      video: 'https://www.youtube.com/watch?v=M9L1i3esNVk' },
+    { name: 'Superset A', isSuperset: true, exercises: [
+        { name: 'Incline Push-ups', sets: 3, reps: 'Max reps', rest: 0,
+          notes: 'Use stairs. Progress to lower stair as you get stronger.',
+          cues: 'Hands on stair edge, shoulder-width apart. Body in a straight line from head to heels. Lower chest to the stair, elbows at ~45 degrees (not flared out). Push back up. Once you can do 15+, move to a lower stair.',
+          video: 'https://www.youtube.com/watch?v=WmMLkpCnUkQ' },
+        { name: 'Dumbbell Rows', sets: 3, reps: '10 each arm', rest: 45,
+          notes: '25-30 lbs. Do all reps on one arm, then switch.',
+          cues: 'One hand and knee on bench/couch for support. Other hand holds dumbbell. Pull the weight to your hip (not your armpit). Squeeze your shoulder blade back at the top. Keep core tight, back flat. Do all reps one side, then the other.',
+          video: 'https://www.youtube.com/watch?v=xl1YEsQpWwg' }
+    ]},
+    { name: 'Superset B', isSuperset: true, exercises: [
+        { name: 'Overhead Press', sets: 3, reps: 10, rest: 0,
+          notes: '20-25 lbs. Stand tall, brace core.',
+          cues: 'Stand with feet shoulder-width, dumbbells at shoulder height. Brace your core (squeeze abs). Press straight up until arms are fully extended. Lower slowly under control. Don\'t arch your lower back.',
+          video: 'https://www.youtube.com/watch?v=qEwKCR5JCog' },
+        { name: 'Band Pull-Aparts', sets: 3, reps: 15, rest: 30,
+          notes: 'Arms straight, pull band to chest level. Great for posture.',
+          cues: 'Hold band in front at shoulder height, arms straight, slight tension. Pull the band apart by squeezing shoulder blades together. End with hands wide, band touching your chest. Slow return. Helps counter desk posture.',
+          video: 'https://www.youtube.com/watch?v=fPJqk21Amn4' }
+    ]},
+    { name: 'Superset C', isSuperset: true, exercises: [
+        { name: 'Dead Hang', sets: 3, reps: '15-30 sec', rest: 0,
+          notes: 'Pull-up bar. Decompresses spine, builds grip for pull-ups.',
+          cues: 'Grab the bar with an overhand grip, shoulder-width. Let your body hang with arms fully straight. Relax your shoulders slightly (active hang: pull shoulders down from ears). Breathe. Great for grip, shoulders, and spine decompression.',
+          video: 'https://www.youtube.com/watch?v=M9L1i3esNVk' },
+        { name: 'Plank', sets: 3, reps: '30-45 sec', rest: 30,
+          notes: 'Elbows under shoulders, squeeze glutes, don\'t sag.',
+          cues: 'Forearms on ground, elbows directly under shoulders. Body in a straight line — squeeze glutes, brace abs as if someone is about to punch your stomach. Don\'t let hips sag or pike up. Breathe normally.',
+          video: 'https://www.youtube.com/watch?v=BQu26ABuVS0' }
+    ]},
     { name: 'Negative Pull-ups', sets: 3, reps: '3-5', rest: 60,
-      notes: 'Jump up, lower yourself over 5 seconds. Key to first pull-up.',
+      notes: 'Jump up, lower yourself over 5 seconds. Key to first pull-up. Do these fresh with full rest.',
       cues: 'Jump or step up so your chin is over the bar. Now lower yourself as slowly as possible (aim for 5 seconds). Fight gravity the whole way down. This builds the strength for your first full pull-up faster than anything else.',
-      video: 'https://www.youtube.com/watch?v=S3gNgnAR37g' },
-    { name: 'Plank', sets: 3, reps: '30-45 sec', rest: 45,
-      notes: 'Elbows under shoulders, squeeze glutes, don\'t sag.',
-      cues: 'Forearms on ground, elbows directly under shoulders. Body in a straight line — squeeze glutes, brace abs as if someone is about to punch your stomach. Don\'t let hips sag or pike up. Breathe normally.',
-      video: 'https://www.youtube.com/watch?v=BQu26ABuVS0' }
+      video: 'https://www.youtube.com/watch?v=S3gNgnAR37g' }
 ];
 
 // --- Strength: Lower Body + Core (Thursday summer / Friday fall) ---
 const LOWER_BODY = [
-    { name: 'Goblet Squats', sets: 3, reps: 12, rest: 60,
-      notes: 'Hold one 30 lb dumbbell at chest. Sit back, knees track toes.',
-      cues: 'Hold dumbbell vertically at your chest with both hands. Feet shoulder-width, toes slightly out. Sit back and down as if into a chair. Knees track over toes (don\'t cave in). Go as deep as comfortable. Drive up through heels.',
-      video: 'https://www.youtube.com/watch?v=MeIiIdhvXT4' },
-    { name: 'Romanian Deadlifts', sets: 3, reps: 10, rest: 60,
-      notes: 'Both dumbbells, 25-30 lbs. Hinge at hips, slight knee bend.',
-      cues: 'Stand holding dumbbells in front of thighs. Slight bend in knees (keep constant throughout). Push hips back and hinge forward, sliding weights down your legs. Feel the stretch in your hamstrings. Drive hips forward to stand. Back stays flat throughout.',
-      video: 'https://www.youtube.com/watch?v=XISJxsccN68' },
-    { name: 'Walking Lunges', sets: 3, reps: '10 each leg', rest: 60,
-      notes: 'Bodyweight or light dumbbells. Big step, knee doesn\'t pass toe.',
-      cues: 'Take a big step forward. Lower until back knee nearly touches the floor. Front knee stays over ankle (not past toes). Push off front foot to step into the next lunge. Keep torso upright, core engaged.',
-      video: 'https://www.youtube.com/watch?v=L8fvypPH3qs' },
-    { name: 'Calf Raises', sets: 3, reps: 15, rest: 45,
-      notes: 'Edge of a stair for full range. Slow on the way down.',
-      cues: 'Stand on the edge of a stair with heels hanging off. Rise up onto your toes as high as possible. Squeeze at the top. Lower slowly below stair level for a full stretch. Hold something for balance.',
-      video: 'https://www.youtube.com/watch?v=gwLzBJYoWlI' },
-    { name: 'Clamshells (Banded)', sets: 3, reps: 15, rest: 30,
-      notes: 'Doubles as IT band rehab. Keep hips stacked.',
+    { name: 'Superset A', isSuperset: true, exercises: [
+        { name: 'Goblet Squats', sets: 3, reps: 12, rest: 0,
+          notes: 'Hold one 30 lb dumbbell at chest. Sit back, knees track toes.',
+          cues: 'Hold dumbbell vertically at your chest with both hands. Feet shoulder-width, toes slightly out. Sit back and down as if into a chair. Knees track over toes (don\'t cave in). Go as deep as comfortable. Drive up through heels.',
+          video: 'https://www.youtube.com/watch?v=MeIiIdhvXT4' },
+        { name: 'Dead Bugs', sets: 3, reps: '10 each side', rest: 30,
+          notes: 'Low back pressed to floor. Slow and controlled. Each side = 1 rep.',
+          cues: 'Lie on back, arms pointing to ceiling, knees bent 90 degrees. Press your lower back firmly into the floor (flatten the arch). Slowly extend one arm overhead and opposite leg out straight. Return. Switch sides. If your back arches, you\'ve gone too far.',
+          video: 'https://www.youtube.com/watch?v=4XLEnwUr1d8' }
+    ]},
+    { name: 'Superset B', isSuperset: true, exercises: [
+        { name: 'Romanian Deadlifts', sets: 3, reps: 10, rest: 0,
+          notes: 'Both dumbbells, 25-30 lbs. Hinge at hips, slight knee bend.',
+          cues: 'Stand holding dumbbells in front of thighs. Slight bend in knees (keep constant throughout). Push hips back and hinge forward, sliding weights down your legs. Feel the stretch in your hamstrings. Drive hips forward to stand. Back stays flat throughout.',
+          video: 'https://www.youtube.com/watch?v=XISJxsccN68' },
+        { name: 'Calf Raises', sets: 3, reps: 15, rest: 30,
+          notes: 'Edge of a stair for full range. Slow on the way down.',
+          cues: 'Stand on the edge of a stair with heels hanging off. Rise up onto your toes as high as possible. Squeeze at the top. Lower slowly below stair level for a full stretch. Hold something for balance.',
+          video: 'https://www.youtube.com/watch?v=gwLzBJYoWlI' }
+    ]},
+    { name: 'Superset C', isSuperset: true, exercises: [
+        { name: 'Walking Lunges', sets: 3, reps: '10 each leg', rest: 0,
+          notes: 'Bodyweight or light dumbbells. Each leg = 1 rep (20 steps total per set).',
+          cues: 'Take a big step forward. Lower until back knee nearly touches the floor. Front knee stays over ankle (not past toes). Push off front foot to step into the next lunge. Keep torso upright, core engaged.',
+          video: 'https://www.youtube.com/watch?v=L8fvypPH3qs' },
+        { name: 'Copenhagen Plank', sets: 3, reps: '15 sec each side', rest: 30,
+          notes: 'Top leg on bench/chair edge. Do right side then left side = 1 set.',
+          cues: 'Side plank position with top leg resting on a bench or sturdy chair (inner thigh on the edge). Bottom leg hangs free. Lift hips to form a straight line. Hold. This targets the adductors (inner thigh) which support knee stability.',
+          video: 'https://www.youtube.com/watch?v=ePjd3HO5rMI' }
+    ]},
+    { name: 'Clamshells (Banded)', sets: 3, reps: '15 each side', rest: 30,
+      notes: 'Doubles as IT band rehab. Do all reps on right, then all reps on left = 1 set.',
       cues: 'Same as IT band protocol clamshells but with a resistance band above your knees for extra challenge. Focus on not letting your hips roll backward.',
-      video: 'https://www.youtube.com/watch?v=bC5MNJsVmPk' },
-    { name: 'Copenhagen Plank', sets: 3, reps: '15 sec each side', rest: 30,
-      notes: 'Top leg on bench/chair edge. Inner thigh + hip stability.',
-      cues: 'Side plank position with top leg resting on a bench or sturdy chair (inner thigh on the edge). Bottom leg hangs free. Lift hips to form a straight line. Hold. This targets the adductors (inner thigh) which support knee stability.',
-      video: 'https://www.youtube.com/watch?v=ePjd3HO5rMI' },
-    { name: 'Dead Bugs', sets: 3, reps: '10 each side', rest: 30,
-      notes: 'Low back pressed to floor. Slow and controlled.',
-      cues: 'Lie on back, arms pointing to ceiling, knees bent 90 degrees. Press your lower back firmly into the floor (flatten the arch). Slowly extend one arm overhead and opposite leg out straight. Return. Switch sides. If your back arches, you\'ve gone too far.',
-      video: 'https://www.youtube.com/watch?v=4XLEnwUr1d8' }
+      video: 'https://www.youtube.com/watch?v=bC5MNJsVmPk' }
 ];
 
 // --- Weekly Plan Generator ---

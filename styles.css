@@ -964,3 +964,16 @@ header h1 {
     flex-direction: column;
     gap: 6px;
 }
+
+
+/* Superset hint */
+.superset-hint {
+    font-size: 0.75rem;
+    color: var(--yellow);
+    font-weight: 600;
+    margin: 6px 0;
+    padding: 4px 8px;
+    background: rgba(234, 179, 8, 0.1);
+    border-radius: 4px;
+    display: inline-block;
+}

@@ -14,7 +14,7 @@ let restTimeRemaining = 0;
 // --- Start Workout ---
 function startWorkoutWalker(exercises, warmup, isPreview) {
     walkerWarmup = warmup || [];
-    walkerExercises = exercises || [];
+    walkerExercises = flattenSupersets(exercises || []);
     walkerCurrentIndex = 0;
     walkerCurrentSet = 1;
     walkerPhase = walkerWarmup.length > 0 ? 'warmup' : 'main';
@@ -26,6 +26,50 @@ function startWorkoutWalker(exercises, warmup, isPreview) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
 
     renderCurrentExercise();
+}
+
+// Flatten superset structures into a linear sequence for the walker
+// Supersets become: [A, B, rest, A, B, rest, A, B, rest]
+function flattenSupersets(exercises) {
+    const flat = [];
+    exercises.forEach(item => {
+        if (item.isSuperset && item.exercises) {
+            // For supersets, we treat the pair as one logical unit
+            // The walker will show them alternating with rest only after both
+            const exA = item.exercises[0];
+            const exB = item.exercises[1];
+            const sets = exA.sets || 3;
+            const restAfterPair = exB.rest || 30;
+
+            flat.push({
+                name: `${item.name}: ${exA.name}`,
+                supersetLabel: item.name,
+                sets: sets,
+                reps: exA.reps,
+                rest: 0, // no rest between A and B
+                notes: exA.notes,
+                cues: exA.cues,
+                video: exA.video,
+                _isPartA: true,
+                _pairName: exB.name
+            });
+            flat.push({
+                name: `${item.name}: ${exB.name}`,
+                supersetLabel: item.name,
+                sets: sets,
+                reps: exB.reps,
+                rest: restAfterPair, // rest after completing the pair
+                notes: exB.notes,
+                cues: exB.cues,
+                video: exB.video,
+                _isPartB: true,
+                _pairName: exA.name
+            });
+        } else {
+            flat.push(item);
+        }
+    });
+    return flat;
 }
 
 // --- Render Current Exercise ---
@@ -78,6 +122,9 @@ function renderCurrentExercise() {
     let infoHtml = exercise.notes || '';
     if (exercise.cues) {
         infoHtml = `<div class="exercise-cues">${exercise.cues}</div>`;
+        if (exercise._isPartA) {
+            infoHtml += `<div class="superset-hint">Then immediately: ${exercise._pairName}</div>`;
+        }
         if (exercise.video) {
             infoHtml += `<a href="${exercise.video}" target="_blank" class="exercise-video-link">&#x1F3AC; Watch demo</a>`;
         }
@@ -107,16 +154,30 @@ function handleNextSet() {
     const exercises = walkerPhase === 'warmup' ? walkerWarmup : walkerExercises;
     const exercise = exercises[walkerCurrentIndex];
 
+    // For superset part A: immediately move to part B (no rest)
+    if (exercise._isPartA) {
+        walkerCurrentIndex++;
+        renderCurrentExercise();
+        return;
+    }
+
+    // For superset part B or regular exercise: check if more sets
     if (walkerCurrentSet < exercise.sets) {
-        // More sets remaining - show rest timer
         walkerCurrentSet++;
         if (exercise.rest > 0) {
             startRestTimer(exercise.rest);
+            // After rest, go back to part A if this is a superset
+            if (exercise._isPartB) {
+                walkerCurrentIndex--; // will go back to A after rest
+            }
         } else {
+            if (exercise._isPartB) {
+                walkerCurrentIndex--;
+            }
             renderCurrentExercise();
         }
     } else {
-        // Move to next exercise
+        // Move to next exercise (or next superset pair)
         walkerCurrentIndex++;
         walkerCurrentSet = 1;
         renderCurrentExercise();

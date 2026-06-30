@@ -538,20 +538,24 @@ function renderWeightHistory() {
 
 function initNutrition() {
     const scale = document.getElementById('nutrition-scale');
+    const dateInput = document.getElementById('nutrition-date');
+    dateInput.valueAsDate = new Date();
+
     scale.addEventListener('click', (e) => {
         if (!e.target.classList.contains('nutrition-btn')) return;
         const rating = parseInt(e.target.dataset.rating);
+        const selectedDate = dateInput.value || Storage.today();
 
         // Save rating
         const entry = {
-            date: Storage.today(),
+            date: selectedDate,
             rating: rating,
             timestamp: Date.now()
         };
 
-        // Replace today's rating if exists
+        // Replace this date's rating if exists
         let ratings = Storage.get('nutrition');
-        ratings = ratings.filter(r => r.date !== Storage.today());
+        ratings = ratings.filter(r => r.date !== selectedDate);
         ratings.unshift(entry);
         Storage.set('nutrition', ratings);
         syncNutritionToSheet(entry);
@@ -559,9 +563,25 @@ function initNutrition() {
         // Update UI
         document.querySelectorAll('.nutrition-btn').forEach(btn => btn.classList.remove('selected'));
         e.target.classList.add('selected');
-        document.getElementById('nutrition-today-status').textContent = `Today: ${rating}/10 ✓`;
+        document.getElementById('nutrition-today-status').textContent = `${formatDate(selectedDate)}: ${rating}/10 saved`;
 
         renderNutritionHistory();
+    });
+
+    // When date changes, show that date's existing rating
+    dateInput.addEventListener('change', () => {
+        const selectedDate = dateInput.value;
+        const ratings = Storage.get('nutrition');
+        const existing = ratings.find(r => r.date === selectedDate);
+
+        document.querySelectorAll('.nutrition-btn').forEach(btn => btn.classList.remove('selected'));
+        if (existing) {
+            const btn = document.querySelector(`.nutrition-btn[data-rating="${existing.rating}"]`);
+            if (btn) btn.classList.add('selected');
+            document.getElementById('nutrition-today-status').textContent = `${formatDate(selectedDate)}: ${existing.rating}/10`;
+        } else {
+            document.getElementById('nutrition-today-status').textContent = '';
+        }
     });
 
     // Show today's rating if exists
@@ -569,7 +589,7 @@ function initNutrition() {
     const todayRating = ratings.find(r => r.date === Storage.today());
     if (todayRating) {
         document.querySelector(`.nutrition-btn[data-rating="${todayRating.rating}"]`).classList.add('selected');
-        document.getElementById('nutrition-today-status').textContent = `Today: ${todayRating.rating}/10 ✓`;
+        document.getElementById('nutrition-today-status').textContent = `Today: ${todayRating.rating}/10`;
     }
 
     renderNutritionHistory();
