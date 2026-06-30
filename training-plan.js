@@ -141,15 +141,15 @@ function getPhase1Week(week, isSummer) {
 
     const plan = {
         mon: { type: 'run', title: 'Incline Run', desc: `${baseMin} min at 8% incline. Jog 5.5 mph, walk as needed.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Push-ups, rows, press, pull-up progression, plank', exercises: UPPER_BODY, warmup: NECK_PROTOCOL },
+        tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Push-ups, rows, press, pull-up progression, plank', exercises: UPPER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
         wed: { type: 'rest', title: isSummer ? 'Ultimate Frisbee' : 'Rest', desc: isSummer ? 'Light stretch AM. Play hard tonight!' : 'Rest day. Light stretch if desired.' },
         thu: isSummer ?
-            { type: 'strength', title: 'Lower Body + Core', desc: 'Squats, RDLs, lunges, calf raises, core', exercises: LOWER_BODY, warmup: IT_BAND_PROTOCOL } :
+            { type: 'strength', title: 'Lower Body + Core', desc: 'Squats, RDLs, lunges, calf raises, core', exercises: LOWER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) } :
             { type: 'run', title: 'Incline Run', desc: `${baseMin - 5} min at 8% incline. Focus on continuous jogging.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
         fri: isSummer ?
             { type: 'run', title: 'Incline Run', desc: `${baseMin - 5} min at 8% incline. Easy effort after yesterday's legs.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) } :
-            { type: 'strength', title: 'Lower Body + Core', desc: 'Squats, RDLs, lunges, calf raises, core', exercises: LOWER_BODY, warmup: IT_BAND_PROTOCOL },
-        sat: { type: 'run', title: 'Long Incline Run', desc: `${longMin} min at 6-8% incline. Slow and steady.`, warmup: IT_BAND_PROTOCOL },
+            { type: 'strength', title: 'Lower Body + Core', desc: 'Squats, RDLs, lunges, calf raises, core', exercises: LOWER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
+        sat: { type: 'run', title: 'Long Incline Run', desc: `${longMin} min at 6-8% incline. Slow and steady.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
         sun: { type: 'rest', title: 'Rest / Family Walk', desc: 'Enjoy the walk! Active recovery.' }
     };
 
@@ -169,15 +169,15 @@ function getPhase2Week(week, isSummer) {
 
     const plan = {
         mon: { type: 'run', title: 'Easy Run', desc: `${easyMiles.toFixed(1)} miles easy pace. Flat or slight incline.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Push-ups, rows, press, pull-up progression, plank', exercises: UPPER_BODY, warmup: NECK_PROTOCOL },
+        tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Push-ups, rows, press, pull-up progression, plank', exercises: UPPER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
         wed: { type: 'rest', title: isSummer ? 'Ultimate Frisbee' : 'Rest', desc: isSummer ? 'Light stretch AM. Play hard tonight!' : 'Rest day.' },
         thu: isSummer ?
-            { type: 'strength', title: 'Lower Body + Core', desc: 'Squats, RDLs, lunges, calf raises, core', exercises: LOWER_BODY, warmup: IT_BAND_PROTOCOL } :
+            { type: 'strength', title: 'Lower Body + Core', desc: 'Squats, RDLs, lunges, calf raises, core', exercises: LOWER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) } :
             { type: 'run', title: 'Tempo Run', desc: `${(easyMiles - 0.5).toFixed(1)} miles. Middle miles at 9:30-10:00 pace.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
         fri: isSummer ?
             { type: 'run', title: 'Moderate Run', desc: `${(easyMiles - 0.5).toFixed(1)} miles. Steady effort.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) } :
-            { type: 'strength', title: 'Lower Body + Core', desc: 'Squats, RDLs, lunges, calf raises, core', exercises: LOWER_BODY, warmup: IT_BAND_PROTOCOL },
-        sat: { type: 'run', title: 'Long Run', desc: `${longMiles.toFixed(1)} miles. Slow pace (10:30-11:00/mi). Walk water breaks are fine.`, warmup: IT_BAND_PROTOCOL },
+            { type: 'strength', title: 'Lower Body + Core', desc: 'Squats, RDLs, lunges, calf raises, core', exercises: LOWER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
+        sat: { type: 'run', title: 'Long Run', desc: `${longMiles.toFixed(1)} miles. Slow pace (10:30-11:00/mi). Walk water breaks are fine.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
         sun: { type: 'rest', title: 'Rest / Family Walk', desc: 'Active recovery. Keep it easy.' }
     };
 
@@ -199,11 +199,11 @@ function getPhase3Week(week) {
 
     const plan = {
         mon: { type: 'run', title: 'Easy Run', desc: `${easyMiles[weekInPhase - 1]} miles easy. Conversational pace.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Push-ups, rows, press, pull-ups, plank', exercises: UPPER_BODY, warmup: NECK_PROTOCOL },
+        tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Push-ups, rows, press, pull-ups, plank', exercises: UPPER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
         wed: { type: 'rest', title: 'Rest', desc: 'Rest day. Light stretch and foam roll.' },
         thu: { type: 'run', title: 'Tempo Run', desc: `${tempoMiles[weekInPhase - 1]} miles. Race pace practice (10:00/mi) for middle miles.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        fri: { type: 'strength', title: 'Lower Body + Core', desc: 'Squats, RDLs, lunges, core. Lighter weights in taper weeks.', exercises: LOWER_BODY, warmup: IT_BAND_PROTOCOL },
-        sat: { type: 'run', title: 'Long Run', desc: `${longRunMiles[weekInPhase - 1]} miles. Steady 10:00-10:30/mi pace.`, warmup: IT_BAND_PROTOCOL },
+        fri: { type: 'strength', title: 'Lower Body + Core', desc: 'Squats, RDLs, lunges, core. Lighter weights in taper weeks.', exercises: LOWER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
+        sat: { type: 'run', title: 'Long Run', desc: `${longRunMiles[weekInPhase - 1]} miles. Steady 10:00-10:30/mi pace.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
         sun: { type: 'rest', title: 'Rest / Family Walk', desc: 'Active recovery.' }
     };
 

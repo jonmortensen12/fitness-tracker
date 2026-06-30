@@ -7,16 +7,18 @@ let walkerWarmup = [];
 let walkerCurrentIndex = 0;
 let walkerCurrentSet = 1;
 let walkerPhase = 'warmup'; // 'warmup' or 'main'
+let walkerIsPreview = false;
 let restTimerInterval = null;
 let restTimeRemaining = 0;
 
 // --- Start Workout ---
-function startWorkoutWalker(exercises, warmup) {
+function startWorkoutWalker(exercises, warmup, isPreview) {
     walkerWarmup = warmup || [];
     walkerExercises = exercises || [];
     walkerCurrentIndex = 0;
     walkerCurrentSet = 1;
     walkerPhase = walkerWarmup.length > 0 ? 'warmup' : 'main';
+    walkerIsPreview = isPreview || false;
 
     // Switch to workout view
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -200,7 +202,7 @@ function finishWorkout() {
     const prevBtn = document.getElementById('btn-prev-exercise');
 
     nameEl.textContent = '🎉 Workout Complete!';
-    detailEl.textContent = 'Great work today.';
+    detailEl.textContent = walkerIsPreview ? 'End of preview.' : 'Great work today.';
     notesEl.textContent = '';
     counterEl.textContent = '';
     progressFill.style.width = '100%';
@@ -208,8 +210,10 @@ function finishWorkout() {
     nextBtn.onclick = exitWorkoutWalker;
     prevBtn.style.display = 'none';
 
-    // Auto-mark today as complete
-    markTodayComplete();
+    // Only mark complete if not a preview
+    if (!walkerIsPreview) {
+        markTodayComplete();
+    }
 }
 
 function exitWorkoutWalker() {

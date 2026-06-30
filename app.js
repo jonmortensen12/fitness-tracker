@@ -108,11 +108,13 @@ function renderToday() {
         // Check if already marked complete
         const completed = getCompletedDates();
         if (completed.includes(Storage.today())) {
-            markBtn.textContent = '✓ Done';
+            markBtn.textContent = '✓ Done (tap to undo)';
             markBtn.style.background = '#16a34a';
+            markBtn.onclick = unmarkTodayComplete;
         } else {
             markBtn.textContent = 'Mark Complete';
             markBtn.style.background = '';
+            markBtn.onclick = markTodayComplete;
         }
     }
 
@@ -217,16 +219,16 @@ function togglePlanSection(btn) {
 function previewWorkout(type) {
     switch (type) {
         case 'upper':
-            startWorkoutWalker(UPPER_BODY, NECK_PROTOCOL);
+            startWorkoutWalker(UPPER_BODY, NECK_PROTOCOL, true);
             break;
         case 'lower':
-            startWorkoutWalker(LOWER_BODY, IT_BAND_PROTOCOL);
+            startWorkoutWalker(LOWER_BODY, IT_BAND_PROTOCOL, true);
             break;
         case 'itband':
-            startWorkoutWalker(null, IT_BAND_PROTOCOL);
+            startWorkoutWalker(null, IT_BAND_PROTOCOL, true);
             break;
         case 'neck':
-            startWorkoutWalker(null, NECK_PROTOCOL);
+            startWorkoutWalker(null, NECK_PROTOCOL, true);
             break;
     }
 }
@@ -358,17 +360,17 @@ function previewDayWorkout(dateStr) {
     const overlay = document.getElementById('day-editor-overlay');
     if (overlay) overlay.remove();
 
-    // Launch walker based on workout type
+    // Launch walker based on workout type (as preview)
     if (plan.type === 'strength' && plan.exercises) {
-        startWorkoutWalker(plan.exercises, plan.warmup);
+        startWorkoutWalker(plan.exercises, plan.warmup, true);
     } else if (plan.title === 'Upper Body + Core') {
-        startWorkoutWalker(UPPER_BODY, NECK_PROTOCOL);
+        startWorkoutWalker(UPPER_BODY, IT_BAND_PROTOCOL.concat(NECK_PROTOCOL), true);
     } else if (plan.title === 'Lower Body + Core') {
-        startWorkoutWalker(LOWER_BODY, IT_BAND_PROTOCOL);
+        startWorkoutWalker(LOWER_BODY, IT_BAND_PROTOCOL.concat(NECK_PROTOCOL), true);
     } else if (plan.type === 'run' && plan.warmup) {
-        startWorkoutWalker(null, plan.warmup);
+        startWorkoutWalker(null, plan.warmup, true);
     } else if (plan.type === 'run') {
-        startWorkoutWalker(null, IT_BAND_PROTOCOL.concat(NECK_PROTOCOL));
+        startWorkoutWalker(null, IT_BAND_PROTOCOL.concat(NECK_PROTOCOL), true);
     }
 }
 
@@ -608,6 +610,14 @@ function markTodayComplete() {
     renderToday();
 }
 
+function unmarkTodayComplete() {
+    const today = Storage.today();
+    let completed = getCompletedDates();
+    completed = completed.filter(d => d !== today);
+    Storage.set('completed_dates', completed);
+    renderToday();
+}
+
 // --- Streak Calculation ---
 function calculateStreak() {
     const completed = getCompletedDates().sort();
@@ -677,17 +687,28 @@ function formatDateFull(dateStr) {
 // --- Button Handlers ---
 function initButtons() {
     document.getElementById('btn-start-workout').addEventListener('click', () => {
-        const plan = getTodayPlan();
+        const overrides = Storage.getObj('week_overrides');
+        const todayStr = Storage.today();
+        let plan;
+        if (overrides[todayStr]) {
+            plan = overrides[todayStr];
+        } else {
+            plan = getTodayPlan();
+        }
         if (!plan) return;
 
-        if (plan.type === 'strength') {
-            startWorkoutWalker(plan.exercises, plan.warmup);
+        if (plan.type === 'strength' && plan.exercises) {
+            startWorkoutWalker(plan.exercises, plan.warmup, false);
+        } else if (plan.title === 'Upper Body + Core') {
+            startWorkoutWalker(UPPER_BODY, IT_BAND_PROTOCOL.concat(NECK_PROTOCOL), false);
+        } else if (plan.title === 'Lower Body + Core') {
+            startWorkoutWalker(LOWER_BODY, IT_BAND_PROTOCOL.concat(NECK_PROTOCOL), false);
         } else if (plan.type === 'run' && plan.warmup) {
-            startWorkoutWalker(null, plan.warmup);
+            startWorkoutWalker(null, plan.warmup, false);
         }
     });
 
-    document.getElementById('btn-mark-done').addEventListener('click', markTodayComplete);
+    // Mark done button is handled via onclick in renderToday()
 }
 
 // --- Service Worker Registration ---
