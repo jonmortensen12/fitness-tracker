@@ -13,46 +13,46 @@ const PLAN_START = '2026-06-30'; // Monday of week 1
 const GOAL_WEIGHT = 200;
 const START_WEIGHT = 228;
 
-// --- IT Band Protocol (daily) ---
-const IT_BAND_PROTOCOL = [
+// --- Morning Warmup (brief, before workout) ---
+const MORNING_WARMUP = [
     { name: 'Foam Roll TFL/Outer Thigh', sets: 1, reps: '60 sec each side', rest: 0,
-      notes: 'Roll the muscle above the knee, not directly on IT band',
+      notes: 'Quick warmup mobility — gets blood flowing to the area',
       cues: 'Lie on your side with the roller under your upper outer thigh (between hip and knee). Roll slowly, pausing on tender spots. Keep core engaged to control pressure.',
-      video: 'https://www.youtube.com/watch?v=iqY3sQRGzNI' },
+      video: 'https://www.youtube.com/watch?v=iqY3sQRGzNI' }
+];
+
+// --- Evening Routine (IT band + neck, do while watching TV) ---
+const EVENING_ROUTINE = [
     { name: 'Cross-Leg Toe Touch Stretch', sets: 2, reps: '30 sec each side', rest: 0,
-      notes: 'Cross one leg behind the other, reach for toes',
+      notes: 'Standing stretch — easy to do during a commercial break',
       cues: 'Stand tall. Cross your right leg behind your left. Reach down toward your left toes, pushing hips to the right. You should feel a stretch along the outside of your right hip/thigh.',
       video: 'https://www.youtube.com/watch?v=5PXIy4Q_LhI' },
     { name: 'Pigeon Stretch', sets: 2, reps: '30 sec each side', rest: 0,
-      notes: 'Or figure-4 stretch lying on back',
+      notes: 'Floor stretch — hold and relax into it',
       cues: 'From all fours, bring right knee forward behind your right wrist. Extend left leg back. Sink hips toward floor. Keep hips square. Feel the stretch deep in the right glute.',
       video: 'https://www.youtube.com/watch?v=_fLxXFfxFSM' },
-    { name: 'Clamshells', sets: 2, reps: 15, rest: 20,
-      notes: 'Band above knees if too easy. Keep hips stacked.',
+    { name: 'Clamshells', sets: 2, reps: '15 each side', rest: 10,
+      notes: 'Lying on side — do all reps right, then all reps left = 1 set',
       cues: 'Lie on your side, knees bent 45 degrees, feet together. Lift top knee as high as possible without rolling your hips back. Squeeze the glute at the top. Slow and controlled.',
       video: 'https://www.youtube.com/watch?v=bC5MNJsVmPk' },
-    { name: 'Single-Leg Glute Bridges', sets: 2, reps: 10, rest: 20,
-      notes: 'Drive through heel, squeeze glute at top',
+    { name: 'Single-Leg Glute Bridges', sets: 2, reps: '10 each side', rest: 10,
+      notes: 'Floor exercise — do all reps right, then left = 1 set',
       cues: 'Lie on back, one foot flat on floor close to butt. Extend other leg up. Push through your heel to lift hips. Squeeze glute hard at top for 1 second. Don\'t let hips rotate.',
       video: 'https://www.youtube.com/watch?v=AVAXhy6pl7o' },
-    { name: 'Side-Lying Leg Raises', sets: 2, reps: 15, rest: 20,
-      notes: 'Straight leg, slightly behind you, toe pointed down',
+    { name: 'Side-Lying Leg Raises', sets: 2, reps: '15 each side', rest: 10,
+      notes: 'Lying on side — do all reps right, then all reps left = 1 set',
       cues: 'Lie on your side, bottom leg slightly bent for stability. Top leg straight, angled slightly behind you (not forward). Point toe slightly downward. Lift from the hip, not the ankle. Keep it slow.',
-      video: 'https://www.youtube.com/watch?v=jghbMRTjFQI' }
-];
-
-// --- Neck Protocol (daily, 2 min) ---
-const NECK_PROTOCOL = [
+      video: 'https://www.youtube.com/watch?v=jghbMRTjFQI' },
     { name: 'Chin Tucks', sets: 1, reps: '10 x 5 sec hold', rest: 0,
-      notes: 'Pull chin straight back, make a double chin',
+      notes: 'Can do sitting on the couch',
       cues: 'Sit or stand tall. Pull your chin straight back (not down) as if making a double chin. Hold 5 seconds. You should feel a gentle stretch at the base of your skull. Avoid tilting your head.',
       video: 'https://www.youtube.com/watch?v=wQylqaCl8Zo' },
     { name: 'Levator Scapulae Stretch', sets: 2, reps: '30 sec each side', rest: 0,
-      notes: 'Look down at armpit, gently pull head with hand',
+      notes: 'Sitting stretch — great during TV time',
       cues: 'Turn your head 45 degrees (look at your armpit). Gently pull your head down with the same-side hand. Feel the stretch along the back/side of your neck. Keep opposite shoulder relaxed and down.',
       video: 'https://www.youtube.com/watch?v=CsAMt7bmFHo' },
     { name: 'Neck Rotations with Overpressure', sets: 1, reps: '5 each direction', rest: 0,
-      notes: 'Turn head, gently push a bit further, hold 5 sec',
+      notes: 'Gentle mobility — never force through pain',
       cues: 'Turn your head as far as comfortable. Place fingertips on your chin and gently push a tiny bit further. Hold 5 seconds. Be gentle — this is mobility work, not a deep stretch. Never force through pain.',
       video: 'https://www.youtube.com/watch?v=xMTw3WjfEfI' }
 ];
@@ -152,12 +152,12 @@ function getPhase1Week(week, isSummer) {
     const longMin = 35 + (week * 2); // 37-47 min
 
     const plan = {
-        mon: { type: 'run', title: 'Long Incline Run', desc: `${longMin} min at 6-8% incline. Slow and steady. This is your key run of the week.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Supersets: Push-ups/Rows, Press/Pull-aparts, Hangs/Plank, then Negative Pull-ups', exercises: UPPER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
+        mon: { type: 'run', title: 'Long Incline Run', desc: `${longMin} min at 6-8% incline. Slow and steady. This is your key run of the week.`, warmup: MORNING_WARMUP },
+        tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Supersets: Push-ups/Rows, Press/Pull-aparts, Hangs/Plank, then Negative Pull-ups', exercises: UPPER_BODY, warmup: MORNING_WARMUP },
         wed: { type: 'rest', title: isSummer ? 'Ultimate Frisbee' : 'Rest', desc: isSummer ? 'Light stretch AM. Play hard tonight!' : 'Rest day. Light stretch if desired.' },
-        thu: { type: 'strength', title: 'Lower Body + Core', desc: 'Supersets: Squats/Dead Bugs, RDLs/Calf Raises, Lunges/Copenhagen, then Clamshells', exercises: LOWER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        fri: { type: 'run', title: 'Incline Run', desc: `${baseMin} min at 8% incline. Moderate effort, jog 5.5 mph, walk as needed.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        sat: { type: 'run', title: 'Recovery + Mini Upper', desc: `${Math.round(baseMin * 0.7)} min easy incline (6%). Then: 2 sets push-ups, 2 sets dead hangs, 2 sets band pull-aparts. OK to skip if family day.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
+        thu: { type: 'strength', title: 'Lower Body + Core', desc: 'Supersets: Squats/Dead Bugs, RDLs/Calf Raises, Lunges/Copenhagen, then Clamshells', exercises: LOWER_BODY, warmup: MORNING_WARMUP },
+        fri: { type: 'run', title: 'Incline Run', desc: `${baseMin} min at 8% incline. Moderate effort, jog 5.5 mph, walk as needed.`, warmup: MORNING_WARMUP },
+        sat: { type: 'run', title: 'Recovery + Mini Upper', desc: `${Math.round(baseMin * 0.7)} min easy incline (6%). Then: 2 sets push-ups, 2 sets dead hangs, 2 sets band pull-aparts. OK to skip if family day.`, warmup: MORNING_WARMUP },
         sun: { type: 'rest', title: 'Rest / Family Walk', desc: 'Enjoy the walk! Active recovery.' }
     };
 
@@ -179,13 +179,13 @@ function getPhase2Week(week, isSummer) {
 
     const plan = {
         mon: { type: 'run', title: 'Long Run', desc: `${longMiles.toFixed(1)} miles. Slow pace (10:30-11:00/mi). Walk water breaks are fine. This is your key run.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Supersets: Push-ups/Rows, Press/Pull-aparts, Hangs/Plank, then Negative Pull-ups', exercises: UPPER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
+        tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Supersets: Push-ups/Rows, Press/Pull-aparts, Hangs/Plank, then Negative Pull-ups', exercises: UPPER_BODY, warmup: MORNING_WARMUP },
         wed: isSummer ?
             { type: 'rest', title: 'Ultimate Frisbee', desc: 'Light stretch AM. Play hard tonight!' } :
-            { type: 'run', title: 'Tempo Run', desc: `${tempoMiles.toFixed(1)} miles. Middle miles at 9:30-10:00 pace.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        thu: { type: 'strength', title: 'Lower Body + Core', desc: 'Supersets: Squats/Dead Bugs, RDLs/Calf Raises, Lunges/Copenhagen, then Clamshells', exercises: LOWER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        fri: { type: 'run', title: 'Easy Run', desc: `${easyMiles.toFixed(1)} miles easy pace. Conversational effort.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        sat: { type: 'run', title: 'Recovery + Mini Upper', desc: `${recoveryMiles.toFixed(1)} miles very easy. Then: 2 sets push-ups, 2 sets dead hangs, 2 sets band pull-aparts. OK to skip.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
+            { type: 'run', title: 'Tempo Run', desc: `${tempoMiles.toFixed(1)} miles. Middle miles at 9:30-10:00 pace.`, warmup: MORNING_WARMUP },
+        thu: { type: 'strength', title: 'Lower Body + Core', desc: 'Supersets: Squats/Dead Bugs, RDLs/Calf Raises, Lunges/Copenhagen, then Clamshells', exercises: LOWER_BODY, warmup: MORNING_WARMUP },
+        fri: { type: 'run', title: 'Easy Run', desc: `${easyMiles.toFixed(1)} miles easy pace. Conversational effort.`, warmup: MORNING_WARMUP },
+        sat: { type: 'run', title: 'Recovery + Mini Upper', desc: `${recoveryMiles.toFixed(1)} miles very easy. Then: 2 sets push-ups, 2 sets dead hangs, 2 sets band pull-aparts. OK to skip.`, warmup: MORNING_WARMUP },
         sun: { type: 'rest', title: 'Rest / Family Walk', desc: 'Active recovery. Keep it easy.' }
     };
 
@@ -207,12 +207,12 @@ function getPhase3Week(week) {
     const recoveryMiles = [3, 3, 3.5, 3.5, 3, 2.5]; // taper
 
     const plan = {
-        mon: { type: 'run', title: 'Long Run', desc: `${longRunMiles[weekInPhase - 1]} miles. Steady 10:00-10:30/mi pace. Your key run.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Supersets: Push-ups/Rows, Press/Pull-aparts, Hangs/Plank, then Pull-ups', exercises: UPPER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        wed: { type: 'run', title: 'Tempo Run', desc: `${tempoMiles[weekInPhase - 1]} miles. Race pace practice (10:00/mi) for middle miles.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        thu: { type: 'strength', title: 'Lower Body + Core', desc: 'Supersets: Squats/Dead Bugs, RDLs/Calf Raises, Lunges/Copenhagen, then Clamshells', exercises: LOWER_BODY, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        fri: { type: 'run', title: 'Easy Run', desc: `${easyMiles[weekInPhase - 1]} miles easy. Conversational pace.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
-        sat: { type: 'run', title: 'Recovery + Mini Upper', desc: `${recoveryMiles[weekInPhase - 1]} miles very easy. Then: 2 sets push-ups, 2 sets dead hangs, 2 sets band pull-aparts. OK to skip.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
+        mon: { type: 'run', title: 'Long Run', desc: `${longRunMiles[weekInPhase - 1]} miles. Steady 10:00-10:30/mi pace. Your key run.`, warmup: MORNING_WARMUP },
+        tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Supersets: Push-ups/Rows, Press/Pull-aparts, Hangs/Plank, then Pull-ups', exercises: UPPER_BODY, warmup: MORNING_WARMUP },
+        wed: { type: 'run', title: 'Tempo Run', desc: `${tempoMiles[weekInPhase - 1]} miles. Race pace practice (10:00/mi) for middle miles.`, warmup: MORNING_WARMUP },
+        thu: { type: 'strength', title: 'Lower Body + Core', desc: 'Supersets: Squats/Dead Bugs, RDLs/Calf Raises, Lunges/Copenhagen, then Clamshells', exercises: LOWER_BODY, warmup: MORNING_WARMUP },
+        fri: { type: 'run', title: 'Easy Run', desc: `${easyMiles[weekInPhase - 1]} miles easy. Conversational pace.`, warmup: MORNING_WARMUP },
+        sat: { type: 'run', title: 'Recovery + Mini Upper', desc: `${recoveryMiles[weekInPhase - 1]} miles very easy. Then: 2 sets push-ups, 2 sets dead hangs, 2 sets band pull-aparts. OK to skip.`, warmup: MORNING_WARMUP },
         sun: { type: 'rest', title: 'Rest / Family Walk', desc: 'Active recovery.' }
     };
 
@@ -227,9 +227,9 @@ function getPhase3Week(week) {
 
 function getRaceWeek() {
     return {
-        mon: { type: 'run', title: 'Easy Shakeout', desc: '3 miles very easy. Shake out the legs.', warmup: IT_BAND_PROTOCOL },
+        mon: { type: 'run', title: 'Easy Shakeout', desc: '3 miles very easy. Shake out the legs.', warmup: MORNING_WARMUP },
         tue: { type: 'rest', title: 'Rest', desc: 'Rest. Hydrate well. Eat normally.' },
-        wed: { type: 'run', title: 'Short Shakeout', desc: '2 miles easy. A few 30-sec pickups at race pace.', warmup: IT_BAND_PROTOCOL },
+        wed: { type: 'run', title: 'Short Shakeout', desc: '2 miles easy. A few 30-sec pickups at race pace.', warmup: MORNING_WARMUP },
         thu: { type: 'rest', title: 'Rest', desc: 'Rest. Pack race gear. Early dinner, early bed.' },
         fri: { type: 'rest', title: 'Rest', desc: 'Travel day if needed. Light walk. Hydrate. Carb-load dinner.' },
         sat: { type: 'race', title: 'RACE DAY!', desc: '13.1 miles. Gilbert Days Half Marathon. Target: 2:11 (10:00/mi). Trust your training!' },

@@ -205,6 +205,10 @@ function renderWeek() {
 
 // --- Day Editor (tap a day in Week view to change it) ---
 
+function startEveningRoutine() {
+    startWorkoutWalker(null, EVENING_ROUTINE, false);
+}
+
 function togglePlanSection(btn) {
     const content = btn.nextElementSibling;
     if (content.style.display === 'none') {
@@ -219,16 +223,13 @@ function togglePlanSection(btn) {
 function previewWorkout(type) {
     switch (type) {
         case 'upper':
-            startWorkoutWalker(UPPER_BODY, NECK_PROTOCOL, true);
+            startWorkoutWalker(UPPER_BODY, MORNING_WARMUP, true);
             break;
         case 'lower':
-            startWorkoutWalker(LOWER_BODY, IT_BAND_PROTOCOL, true);
+            startWorkoutWalker(LOWER_BODY, MORNING_WARMUP, true);
             break;
-        case 'itband':
-            startWorkoutWalker(null, IT_BAND_PROTOCOL, true);
-            break;
-        case 'neck':
-            startWorkoutWalker(null, NECK_PROTOCOL, true);
+        case 'evening':
+            startWorkoutWalker(null, EVENING_ROUTINE, true);
             break;
     }
 }
@@ -364,13 +365,13 @@ function previewDayWorkout(dateStr) {
     if (plan.type === 'strength' && plan.exercises) {
         startWorkoutWalker(plan.exercises, plan.warmup, true);
     } else if (plan.title === 'Upper Body + Core') {
-        startWorkoutWalker(UPPER_BODY, IT_BAND_PROTOCOL.concat(NECK_PROTOCOL), true);
+        startWorkoutWalker(UPPER_BODY, MORNING_WARMUP, true);
     } else if (plan.title === 'Lower Body + Core') {
-        startWorkoutWalker(LOWER_BODY, IT_BAND_PROTOCOL.concat(NECK_PROTOCOL), true);
+        startWorkoutWalker(LOWER_BODY, MORNING_WARMUP, true);
     } else if (plan.type === 'run' && plan.warmup) {
         startWorkoutWalker(null, plan.warmup, true);
     } else if (plan.type === 'run') {
-        startWorkoutWalker(null, IT_BAND_PROTOCOL.concat(NECK_PROTOCOL), true);
+        startWorkoutWalker(null, MORNING_WARMUP, true);
     }
 }
 
@@ -720,9 +721,9 @@ function initButtons() {
         if (plan.type === 'strength' && plan.exercises) {
             startWorkoutWalker(plan.exercises, plan.warmup, false);
         } else if (plan.title === 'Upper Body + Core') {
-            startWorkoutWalker(UPPER_BODY, IT_BAND_PROTOCOL.concat(NECK_PROTOCOL), false);
+            startWorkoutWalker(UPPER_BODY, MORNING_WARMUP, false);
         } else if (plan.title === 'Lower Body + Core') {
-            startWorkoutWalker(LOWER_BODY, IT_BAND_PROTOCOL.concat(NECK_PROTOCOL), false);
+            startWorkoutWalker(LOWER_BODY, MORNING_WARMUP, false);
         } else if (plan.type === 'run' && plan.warmup) {
             startWorkoutWalker(null, plan.warmup, false);
         }
