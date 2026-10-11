@@ -4,12 +4,12 @@
 // Race Day: November 21, 2026 (Saturday)
 // Plan Start: June 30, 2026 (Monday of Week 1)
 // Phase 1 (Weeks 1-6): Rehab - IT band fix, incline treadmill, build hip strength
-// Phase 2 (Weeks 7-14): Build - Transition to flat/outdoor, increase distance
-// Phase 3 (Weeks 15-20): Race Prep - Peak mileage, practice race pace, taper
+// Phase 2 (Weeks 7-15): Build - Transition to flat/outdoor, increase distance
+// Phase 3 (Weeks 16-20): Revised Oct 11 - Gradual outdoor transition, long runs 6.5 -> 11 mi, taper
 // Week 21: Race week
 
 const RACE_DATE = '2026-11-21';
-const PLAN_START = '2026-06-30'; // Monday of week 1
+const PLAN_START = '2026-06-29'; // Monday of week 1
 const GOAL_WEIGHT = 200;
 const START_WEIGHT = 228;
 
@@ -133,6 +133,29 @@ const LOWER_BODY = [
       video: 'https://www.youtube.com/watch?v=bC5MNJsVmPk' }
 ];
 
+// --- Strength: Hip + Core (Phase 3, Tue/Thu, ~15 min) ---
+// Hip stabilizers protect the IT band on flat/outdoor miles; calf raises help shins/calves adjust to pavement.
+function findExercise(list, name) {
+    for (const item of list) {
+        if (item.name === name) return item;
+        if (item.isSuperset) {
+            const match = item.exercises.find(ex => ex.name === name);
+            if (match) return match;
+        }
+    }
+    return null;
+}
+
+const HIP_STRENGTH = [
+    { ...findExercise(LOWER_BODY, 'Clamshells (Banded)'), rest: 20 },
+    { ...findExercise(EVENING_ROUTINE, 'Side-Lying Leg Raises'), sets: 3, rest: 20 },
+    { ...findExercise(EVENING_ROUTINE, 'Single-Leg Glute Bridges'), sets: 3, rest: 20 },
+    { name: 'Side Plank', sets: 3, reps: '20-30 sec each side', rest: 20,
+      notes: 'Right side then left side = 1 set. Drop to knees if needed.',
+      cues: 'Lie on your side, elbow directly under shoulder, feet stacked (or knees bent for an easier version). Lift hips so your body forms a straight line. Don\'t let hips sag or rotate forward. Breathe normally.' },
+    { ...findExercise(LOWER_BODY, 'Calf Raises'), rest: 20 }
+];
+
 // --- Weekly Plan Generator ---
 // Returns the plan for a given week number (1-21)
 function getWeekPlan(weekNum) {
@@ -141,7 +164,7 @@ function getWeekPlan(weekNum) {
     const isSummer = weekNum <= 7;
 
     if (weekNum <= 6) return getPhase1Week(weekNum, isSummer);
-    if (weekNum <= 14) return getPhase2Week(weekNum, weekNum <= 7);
+    if (weekNum <= 15) return getPhase2Week(weekNum, weekNum <= 7);
     if (weekNum <= 20) return getPhase3Week(weekNum);
     return getRaceWeek();
 }
@@ -171,14 +194,14 @@ function getPhase1Week(week, isSummer) {
 
 function getPhase2Week(week, isSummer) {
     // Transition to flat/outdoor, increase distance
-    const weekInPhase = week - 6; // 1-8
+    const weekInPhase = week - 6; // 1-9
     const easyMiles = 3.5 + (weekInPhase * 0.25); // 3.75 - 5.5
     const longMiles = 5 + (weekInPhase * 0.75); // 5.75 - 11
     const tempoMiles = Math.max(3, easyMiles - 0.5);
     const recoveryMiles = Math.max(2, easyMiles - 1.5);
 
     const plan = {
-        mon: { type: 'run', title: 'Long Run', desc: `${longMiles.toFixed(1)} miles. Slow pace (10:30-11:00/mi). Walk water breaks are fine. This is your key run.`, warmup: IT_BAND_PROTOCOL.concat(NECK_PROTOCOL) },
+        mon: { type: 'run', title: 'Long Run', desc: `${longMiles.toFixed(1)} miles. Slow pace (10:30-11:00/mi). Walk water breaks are fine. This is your key run.`, warmup: MORNING_WARMUP },
         tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Supersets: Push-ups/Rows, Press/Pull-aparts, Hangs/Plank, then Negative Pull-ups', exercises: UPPER_BODY, warmup: MORNING_WARMUP },
         wed: isSummer ?
             { type: 'rest', title: 'Ultimate Frisbee', desc: 'Light stretch AM. Play hard tonight!' } :
@@ -198,41 +221,67 @@ function getPhase2Week(week, isSummer) {
     return plan;
 }
 
-function getPhase3Week(week) {
-    // Race prep - peak mileage, taper. Fall schedule (no frisbee)
-    const weekInPhase = week - 14; // 1-6
-    const longRunMiles = [10, 11, 12, 13, 10, 8]; // peak then taper
-    const easyMiles = [5, 5, 5.5, 5.5, 4.5, 4]; // taper down last 2 weeks
-    const tempoMiles = [4, 4.5, 4.5, 5, 4, 3]; // taper
-    const recoveryMiles = [3, 3, 3.5, 3.5, 3, 2.5]; // taper
+// Appended to Phase 3 and race week run descriptions
+const FORM_CUE = ' Form: short, quick steps, landing under your hips. Don\'t reach forward.';
+const KNEE_RULE = ' STOP RULE: sharp pain on the outside of the knee that gets worse as you go = stop running and walk home. A dull ache that stays the same is OK.';
 
-    const plan = {
-        mon: { type: 'run', title: 'Long Run', desc: `${longRunMiles[weekInPhase - 1]} miles. Steady 10:00-10:30/mi pace. Your key run.`, warmup: MORNING_WARMUP },
-        tue: { type: 'strength', title: 'Upper Body + Core', desc: 'Supersets: Push-ups/Rows, Press/Pull-aparts, Hangs/Plank, then Pull-ups', exercises: UPPER_BODY, warmup: MORNING_WARMUP },
-        wed: { type: 'run', title: 'Tempo Run', desc: `${tempoMiles[weekInPhase - 1]} miles. Race pace practice (10:00/mi) for middle miles.`, warmup: MORNING_WARMUP },
-        thu: { type: 'strength', title: 'Lower Body + Core', desc: 'Supersets: Squats/Dead Bugs, RDLs/Calf Raises, Lunges/Copenhagen, then Clamshells', exercises: LOWER_BODY, warmup: MORNING_WARMUP },
-        fri: { type: 'run', title: 'Easy Run', desc: `${easyMiles[weekInPhase - 1]} miles easy. Conversational pace.`, warmup: MORNING_WARMUP },
-        sat: { type: 'run', title: 'Recovery + Mini Upper', desc: `${recoveryMiles[weekInPhase - 1]} miles very easy. Then: 2 sets push-ups, 2 sets dead hangs, 2 sets band pull-aparts. OK to skip.`, warmup: MORNING_WARMUP },
+// Phase 3 (revised Oct 11): 3 runs/week, outdoor miles added gradually.
+// Index 0 = Week 16 (Oct 12) ... index 4 = Week 20 (Nov 9)
+const PHASE3_RUNS = [
+    { // Week 16 - first outdoor test
+        mon: { title: 'Long Run', desc: '6.5 miles on the treadmill at 0-1% incline. Easy pace (10:30-11:00/mi). Walk breaks are fine.' },
+        wed: { title: 'Outdoor Test Run', desc: '2 miles easy OUTDOORS on a flat loop near home so you can stop anytime. Note how the knee feels during the run and the next morning.' },
+        fri: { title: 'Easy Run', desc: '3.5 miles easy on the treadmill at 0-1% incline. Conversational pace.' }
+    },
+    { // Week 17
+        mon: { title: 'Long Run', desc: '8 miles. First 3-4 miles OUTDOORS on a flat route, then finish on the treadmill. Easy pace, walk breaks fine.' },
+        wed: { title: 'Easy Run + Goal Pace', desc: '3.5 miles. Middle 1-2 miles at 10:00/mi goal pace. Treadmill is fine.' },
+        fri: { title: 'Outdoor Easy Run', desc: '3.5 miles easy outdoors on a flat route. On an out-and-back, stay on the same side of the road both ways so the road slope evens out.' }
+    },
+    { // Week 18
+        mon: { title: 'Long Run', desc: '9.5 miles. First 5-6 miles outdoors, then finish on the treadmill, or stay outdoors the whole way if the knee is quiet. Run/walk is fine (run 9 min, walk 1).' },
+        wed: { title: 'Easy Run', desc: '4 miles easy. Conversational pace.' },
+        fri: { title: 'Outdoor Easy Run', desc: '4 miles easy outdoors on a flat route.' }
+    },
+    { // Week 19 - peak + checkpoint
+        mon: { title: 'Peak Long Run', desc: '10-11 miles, fully OUTDOORS on a flat route. Rehearse race day: run 9 min / walk 1 min, walk any real downhills, wear race shoes, eat your race breakfast. CHECKPOINT: pain-free = you\'re ready. If the knee flared, plan a run/walk race.' },
+        wed: { title: 'Easy Run + Goal Pace', desc: '4 miles. Middle 2 miles at 10:00/mi goal pace.' },
+        fri: { title: 'Outdoor Easy Run', desc: '4 miles easy outdoors.' }
+    },
+    { // Week 20 - taper
+        mon: { title: 'Long Run (Taper)', desc: '7-8 miles easy outdoors. Finish feeling like you could do more.' },
+        wed: { title: 'Easy Run', desc: '3 miles easy.' },
+        fri: { title: 'Outdoor Easy Run', desc: '3 miles easy outdoors.' }
+    }
+];
+
+function getPhase3Week(week) {
+    const runs = PHASE3_RUNS[week - 16];
+    const isTaper = week === 20;
+    const hipDesc = isTaper ?
+        'Light session: 1-2 sets each. Keep the hips active without getting sore.' :
+        '~15 min: Clamshells, Leg Raises, Single-Leg Bridges, Side Plank, Calf Raises. Protects the IT band on outdoor miles.';
+    const run = (day) => ({ type: 'run', title: runs[day].title, desc: runs[day].desc + FORM_CUE + KNEE_RULE, warmup: MORNING_WARMUP });
+
+    return {
+        mon: run('mon'),
+        tue: { type: 'strength', title: 'Hip + Core', desc: hipDesc, exercises: HIP_STRENGTH, warmup: MORNING_WARMUP },
+        wed: run('wed'),
+        thu: { type: 'strength', title: 'Hip + Core', desc: hipDesc, exercises: HIP_STRENGTH, warmup: MORNING_WARMUP },
+        fri: run('fri'),
+        sat: { type: 'rest', title: 'Rest / Optional Walk', desc: 'Family day. Optional easy walk. No running needed.' },
         sun: { type: 'rest', title: 'Rest / Family Walk', desc: 'Active recovery.' }
     };
-
-    // Taper adjustments (weeks 5-6 of phase, which is weeks 19-20 overall)
-    if (weekInPhase >= 5) {
-        plan.tue.desc = 'Lighter session. Maintain form, reduce volume.';
-        plan.thu.desc = 'Light session. Keep muscles active, don\'t fatigue.';
-    }
-
-    return plan;
 }
 
 function getRaceWeek() {
     return {
-        mon: { type: 'run', title: 'Easy Shakeout', desc: '3 miles very easy. Shake out the legs.', warmup: MORNING_WARMUP },
+        mon: { type: 'run', title: 'Easy Shakeout', desc: '3 miles very easy outdoors. Shake out the legs.' + KNEE_RULE, warmup: MORNING_WARMUP },
         tue: { type: 'rest', title: 'Rest', desc: 'Rest. Hydrate well. Eat normally.' },
-        wed: { type: 'run', title: 'Short Shakeout', desc: '2 miles easy. A few 30-sec pickups at race pace.', warmup: MORNING_WARMUP },
+        wed: { type: 'run', title: 'Short Shakeout', desc: '2 miles easy. A few 30-sec pickups at race pace.' + FORM_CUE, warmup: MORNING_WARMUP },
         thu: { type: 'rest', title: 'Rest', desc: 'Rest. Pack race gear. Early dinner, early bed.' },
         fri: { type: 'rest', title: 'Rest', desc: 'Travel day if needed. Light walk. Hydrate. Carb-load dinner.' },
-        sat: { type: 'race', title: 'RACE DAY!', desc: '13.1 miles. Gilbert Days Half Marathon. Target: 2:11 (10:00/mi). Trust your training!' },
+        sat: { type: 'race', title: 'RACE DAY!', desc: '13.1 miles. Gilbert Days Half Marathon. Run 9 min / walk 1 min from the start, even if you feel great, and walk any real downhills. Goal: finish strong around 2:15-2:25. Go for 10:00/mi only if your long runs felt good. Stop rule still applies: you can always walk to the finish. Trust your training!' },
         sun: { type: 'rest', title: 'Recovery', desc: 'You did it! Celebrate. Easy walk if you feel like it.' }
     };
 }
@@ -290,8 +339,8 @@ function getDaysUntilRace() {
 
 function getPhaseLabel(weekNum) {
     if (weekNum <= 6) return 'Phase 1: Rehab & Build';
-    if (weekNum <= 14) return 'Phase 2: Distance Build';
-    if (weekNum <= 20) return 'Phase 3: Race Prep';
+    if (weekNum <= 15) return 'Phase 2: Distance Build';
+    if (weekNum <= 20) return 'Phase 3: Outdoor Build & Taper';
     return 'Race Week';
 }
 

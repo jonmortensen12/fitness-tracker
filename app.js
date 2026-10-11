@@ -256,6 +256,7 @@ function openDayEditor(dateStr) {
         { type: 'run', title: 'Long Run' },
         { type: 'strength', title: 'Upper Body + Core' },
         { type: 'strength', title: 'Lower Body + Core' },
+        { type: 'strength', title: 'Hip + Core' },
         { type: 'rest', title: 'Rest' },
         { type: 'rest', title: 'Ultimate Frisbee' },
         { type: 'rest', title: 'Family Walk/Hike' }

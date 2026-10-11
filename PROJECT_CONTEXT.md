@@ -76,9 +76,9 @@ Note: Kiro must use lowercase `c:\` due to a known bug.
 - **Starting Weight**: 225-228 lbs (June 2026)
 - **Goal Weight**: Under 200 lbs (190 ideal)
 - **Race**: Gilbert Days Half Marathon, November 21, 2026 (Saturday)
-- **Race Goal**: Run the whole thing at 10:00/mile pace (finish ~2:11)
+- **Race Goal** (revised Oct 11): Finish healthy around 2:15-2:25 running 9 min / walking 1 min; 10:00/mile (~2:11) only if long runs go well
 - **Running background**: 1000+ miles in 2025, consistently 4-5 days/week on flat treadmill, up to 5 miles in under 40 min
-- **Plan start date**: June 30, 2026 (Monday of Week 1)
+- **Plan start date**: June 29, 2026 (Monday of Week 1)
 
 ## Current Limitations
 
@@ -104,17 +104,24 @@ Note: Kiro must use lowercase `c:\` due to a known bug.
 - Start losing weight
 - Test flat running at weeks 4-5
 
-### Phase 2: Weeks 7-14 (Aug 11 - Oct 17) — Build
+### Phase 2: Weeks 7-15 (Aug 10 - Oct 11) — Build
 - Transition to flat/outdoor running
 - Increase distance progressively
 - Long runs build from 5.75 to 11 miles
 - Wednesday becomes tempo run day once frisbee ends (Week 8+)
 - Continue weight loss
 
-### Phase 3: Weeks 15-20 (Oct 20 - Nov 14) — Race Prep
-- Peak mileage (long runs: 10, 11, 12, 13, 10, 8)
-- Practice race pace (10:00/mile)
-- Taper in final 2 weeks
+### Status check (Oct 11)
+- Weight still ~225. Strength goals stalled. Treadmill running went well: 5K under 30 min at 4% incline, and 5 miles in 45 min at 0% (some walking), both with no knee pain.
+- Running only 2x/week, and the longest run is 5 miles. Biggest worry is IT band pain on outdoor/flat running.
+
+### Phase 3: Weeks 16-20 (Oct 12 - Nov 15) — Outdoor Build & Taper (revised Oct 11)
+- 3 runs/week: Mon long run, Wed easy (some with goal-pace miles), Fri easy. Tue/Thu are ~15 min Hip + Core sessions. Saturday is rest/optional walk.
+- Long runs: 6.5 (treadmill), 8, 9.5, 10-11 (peak, fully outdoors), 7-8 (taper)
+- Outdoor progression: Wk 16 a 2-mile outdoor test; Wk 17 long run starts outdoors (3-4 mi) and finishes on the treadmill; Wk 18 5-6 mi outdoors; Wk 19 peak run fully outdoors
+- Stop rule on every run: sharp lateral knee pain that worsens = stop and walk home
+- Form cue: short, quick steps, landing under the hips
+- Checkpoint Nov 2: pain-free peak run = ready; if the knee flares, plan a run/walk race
 
 ### Week 21 (Nov 17-21) — Race Week
 - Short easy shakeout runs Mon/Wed
